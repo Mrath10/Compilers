@@ -1,0 +1,40 @@
+// Incorrect program: mixed-type, incompatible, guarded branch expressions
+type
+  R = [-2..2];
+  S = [0..150];
+var
+  x : int;
+  b0 : boolean;
+  b1 : boolean;
+  b2 : boolean;
+  b3 : boolean;
+  r : R;
+  s : S;
+begin
+  x := 98;
+  b0 := false;
+  b1 := false;
+  b2 := true;
+  b3 := false;
+  r := 2;
+  s := 98;
+
+  write ife b0 then x  // ref(int)
+        []  b1 then r  // ref(subrange(int, -2, 2))
+        []  b2 then b1 // ref(boolean)
+        []  b3 then s  // ref(subrange(int, 0, 150))
+        fi;
+
+  write ife b0 then 100  // int
+        []  b1 then b1   // ref(boolean)
+        []  b2 then r    // ref(subrange(int, -2, 2))
+        []  b3 then true // boolean
+        fi;
+
+  write ife b0 then true // boolean
+        []  b1 then r    // ref(subrange(int, -2, 2))
+        []  b2 then b2   // ref(boolean)
+        []  b3 then x    // ref(int)
+        fi
+
+end

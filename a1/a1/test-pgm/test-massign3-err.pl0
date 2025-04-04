@@ -1,0 +1,6 @@
+var
+  x: int;
+  b : boolean;
+begin
+  x := b | b := x   // both assignments are not type correct
+end

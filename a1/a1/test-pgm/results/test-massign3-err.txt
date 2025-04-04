@@ -1,0 +1,7 @@
+Compiling test-massign3-err.pl0
+Parsing complete
+     5   x := b | b := x   // both assignments are not type correct
+******        ^  Error: cannot coerce boolean to int
+******                 ^  Error: cannot coerce int to boolean
+Static semantic analysis complete
+2 errors detected.

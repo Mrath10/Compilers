@@ -1,0 +1,25 @@
+// Incorrect program: syntactical errors
+var
+  x : int;
+  b1 : boolean;
+  b2 : boolean;
+  b3 : boolean;
+begin
+  x := 15;
+  b1 := true;
+  b2 := false;
+  b3 := false;
+
+  // ife with no branches
+  write ife fi; // syntactical error
+
+  // ife missing fi
+  write ife true then 97 [] false then 0; // syntactical error
+
+  // ife missing []
+  write ife b1 then 91 b2 then false [] b3 then true fi;  // syntactical error, able to recover and find type error
+
+  // ife too many []
+  write ife b1 then 91 [] [] b2 then false [] b3 then true fi // syntactical error, able to recover and find type errors
+
+end

@@ -1,0 +1,16 @@
+Compiling test-massign4-syn-err.pl0
+     5   x : = y;           // erroneous blank between : and =
+******     ^  Error: ':' cannot follow LValue in SingleAssign
+******       ^  Error: Parse error, expecting ':=' in SingleAssign
+     6   x := y || y := x;  // error || should be |
+******           ^  Error: '|' cannot start SingleAssign
+     7   x := y & y := x;   // error & should be |
+******          ^  Error: 'illegal' cannot follow LValue in Factor
+     8   x := y | while true do y:=1  // a while statement isn't an assignment
+******            ^  Error: 'while' cannot start SingleAssign
+******                       ^  Error: 'do' cannot follow LValue in SingleAssign
+Parsing complete
+     8   x := y | while true do y:=1  // a while statement isn't an assignment
+******                  ^  Error: reference type expected
+Static semantic analysis complete
+7 errors detected.

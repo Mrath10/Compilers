@@ -1,0 +1,67 @@
+// Correct program: mixed-type, but compatible, guarded branch expressions
+type
+  R = [-2..2];
+  S = [0..150];
+var
+  w : int;
+  x : int;
+  y : int;
+  z : int;
+  b0 : boolean;
+  b1 : boolean;
+  b2 : boolean;
+  b3 : boolean;
+  r0 : R;
+  r1 : R;
+  r2 : R;
+  r3 : R;
+  s : S;
+begin
+  x := 98;
+  y := 99;
+  z := 100;
+  b1 := false;
+  b2 := true;
+  b3 := false;
+  r1 := -1;
+  r2 := 1;
+  r3 := 2;
+  s := 98;
+
+  // if expression type: int
+  // writes -1, 98
+  write ife b1 then x [] b2 then r1 [] b3 then s fi; // ref(int), ref(subrange(int, -2, 2)), ref(subrange(int, 0, 150))
+  write ife b1 then x [] b2 then s  [] b3 then 100 fi; // ref(int), ref(subrange(int, 0, 150)), int
+
+  // if expression type: ref(int)
+  // writes 99, 98, 0, 100
+  w := ife b1 then x [] b2 then y [] b3 then z fi; // all ref(int)
+  write w;
+  ife b1 then x [] b2 then y [] b3 then z fi := 0;
+  write x;
+  write y;
+  write z;
+
+  // if expression type: ref(subrange(int, -2, 2))
+  // writes 1, -1, 0, 2
+  r0 := ife b1 then r1 [] b2 then r2 [] b3 then r3 fi; // all ref(subrange(int, -2, 2))
+  write r0;
+  ife b1 then r1 [] b2 then r2 [] b3 then r3 fi := 0;
+  write r1;
+  write r2;
+  write r3;
+
+  // if expression type: boolean
+  // writes 0
+  b0 := ife b1 then b3 [] b2 then false fi; // ref(boolean), boolean
+  write ife b0=true then 1 [] b0=false then 0 fi;
+
+  // if expression type: ref(boolean)
+  // writes 1, 0, 0
+  b0 := ife b1=b2 then b1 [] b1!=b2 then b2 fi; // ref(boolean), ref(boolean)
+  write ife b0=true then 1 [] b0=false then 0 fi;
+  ife b1=b2 then b1 [] b1!=b2 then b2 fi := false;
+  write ife b1=true then 1 [] b1=false then 0 fi;
+  write ife b2=true then 1 [] b2=false then 0 fi
+
+end

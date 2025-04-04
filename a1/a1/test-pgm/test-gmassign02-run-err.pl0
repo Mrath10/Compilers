@@ -1,0 +1,14 @@
+// Correct program: includes multiple assignments with if expressions as left values
+var
+  x : int;
+  y : int;
+  z : int;
+begin
+  x := 1;
+  y := 2;
+  z := 3;
+  ife z > x  then x []  z <= x then z fi := y | // assigns to x
+  ife x > y  then x []  x <= y then y fi := z | // assigns to y
+  ife y > z  then y []  y <= z then z fi := x | // assigns to z
+  y := -1                                       // assigns to y again (runtime error)
+end

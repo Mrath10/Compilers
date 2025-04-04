@@ -1,0 +1,16 @@
+// Correct program: includes multiple assignments with if expressions as left values
+var
+  x : int;
+  y : int;
+begin
+  x := 100;
+  y := 90;
+  ife x > y then x [] x <= y then y fi := 0 | // assigns x to 0
+  ife x > y then y [] x <= y then x fi := 1 ; // assigns y to 1
+  write x; // writes 0
+  write y;  // writes 1
+  ife x > y then x [] x <= y then y fi := 0 | // assigns y to 1
+  ife x > y then y [] x <= y then x fi := 1 ; // assigns x to 0
+  write x; // writes 1
+  write y  // writes 0
+end

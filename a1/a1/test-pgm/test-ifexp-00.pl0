@@ -1,0 +1,13 @@
+// Correct program: from handout: assigns to x the absolute value of x
+var
+  x: int;
+begin
+  x := -100;
+  x := ife x <= 0 then -x [] x >= 0 then x fi;
+  write x; // writes 100
+  x := ife x <= 0 then -x [] x >= 0 then x fi;
+  write x; // writes 100
+  x := 0;
+  x := ife x <= 0 then -x [] x >= 0 then x fi;
+  write x // writes 0
+end

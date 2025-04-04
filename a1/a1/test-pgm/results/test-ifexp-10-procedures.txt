@@ -1,0 +1,9 @@
+Compiling test-ifexp-10-procedures.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+42
+1
+
+Terminated
+No errors detected.

@@ -1,0 +1,39 @@
+// Incorrect program: static semantics errors
+type
+  R = [-2..2];
+  S = [0..150];
+var
+  w : int;
+  x : int;
+  y : int;
+  z : int;
+  b0 : boolean;
+  b1 : boolean;
+  b2 : boolean;
+  b3 : boolean;
+  r0 : R;
+  r1 : R;
+  r2 : R;
+  r3 : R;
+  s : S;
+begin
+  x := 98;
+  y := 99;
+  z := 100;
+  b1 := false;
+  b2 := true;
+  b3 := false;
+  r1 := -1;
+  r2 := 1;
+  r3 := 2;
+  s := 98;
+
+  // if expression type: int
+  // cannot assign to an integer
+  ife b1 then x [] b2 then r1 [] b3 then s fi := -100; // ref(int), ref(subrange(int, -2, 2)), ref(subrange(int, 0, 150))
+
+  // if expression type: ref(int)
+  // cannot assign a boolean to a ref(int)
+  ife b1 then x [] b2 then y [] b3 then z fi := false
+
+end

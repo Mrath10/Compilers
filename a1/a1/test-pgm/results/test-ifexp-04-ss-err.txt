@@ -1,0 +1,14 @@
+Compiling test-ifexp-04-ss-err.pl0
+Parsing complete
+    24         []  b2 then b1 // ref(boolean)
+******                     ^  Error: incompatible branch expression
+    29         []  b1 then b1   // ref(boolean)
+******                     ^  Error: incompatible branch expression
+    31         []  b3 then true // boolean
+******                     ^  Error: incompatible branch expression
+    35         []  b1 then r    // ref(subrange(int, -2, 2))
+******                     ^  Error: incompatible branch expression
+    37         []  b3 then x    // ref(int)
+******                     ^  Error: incompatible branch expression
+Static semantic analysis complete
+5 errors detected.

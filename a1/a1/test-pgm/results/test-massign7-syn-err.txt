@@ -1,0 +1,10 @@
+Compiling test-massign7-syn-err.pl0
+     5     x+1 := y | 2 := x;
+******      ^  Error: '+' cannot follow LValue in SingleAssign
+******                ^  Error: number(2) cannot start SingleAssign
+******                      ^  Error: Parse error, expecting ':=' in SingleAssign
+     6     write x
+******     ^  Error: 'write' cannot start RelCondition
+Parsing complete
+Static semantic analysis complete
+4 errors detected.

@@ -1,0 +1,10 @@
+Compiling test-ifexp-00.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+100
+100
+0
+
+Terminated
+No errors detected.

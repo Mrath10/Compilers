@@ -1,0 +1,11 @@
+Compiling test-gmassign00.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+0
+1
+1
+0
+
+Terminated
+No errors detected.

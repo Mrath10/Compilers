@@ -1,0 +1,26 @@
+// Correct program: involves procedure calls
+var x: S;
+procedure p() =
+  procedure r() =
+    var z : T;
+    begin // r
+        y := ife y=42 then 45 [] y!=42 then 42 fi;
+        x := ife x=-1 then 1 fi
+    end; //r
+
+  var y: T;
+  type T = [0..50];
+
+  begin // p
+    y := 43;
+    call r();
+    write y   // writes 42
+  end; //p
+
+type S = [-2..2];
+
+begin // main
+  x := -1;
+  call p();
+  write x // writes 1
+end // main

@@ -1,0 +1,8 @@
+Compiling test-ifexp-05-ss-err.pl0
+Parsing complete
+    33   ife b1 then x [] b2 then r1 [] b3 then s fi := -100; // ref(int), ref(subrange(int, -2, 2)), ref(subrange(int, 0, 150))
+******   ^  Error: reference type expected
+    37   ife b1 then x [] b2 then y [] b3 then z fi := false
+******                                                 ^  Error: cannot coerce boolean to int
+Static semantic analysis complete
+2 errors detected.

@@ -1,0 +1,39 @@
+// Correct program: test 1 branch, 2 branches, many branches (all integer-valued expressions)
+var
+  x : int;
+  b1 : boolean;
+  b2 : boolean;
+  b3 : boolean;
+begin
+  x := 15;
+  b1 := true;
+  b2 := false;
+  b3 := false;
+
+  // ife with one branch only
+  write ife true then 100 fi;                 // writes 100
+  write ife b1 then 99 fi;                    // writes 99
+  write ife (ife b1 then true fi) then (ife b1 then 98 fi) fi; // writes 98
+
+  // ife with two branches only (only one enabled at a time)
+  write ife true then 97 [] false then 0 fi; // writes 97
+  write ife false then 0 [] true then 96 fi; // writes 96
+
+  write ife b1 then 95 [] b2 then 0 fi; // writes 95
+  write ife b2 then 0 [] b1 then 94 fi; // writes 94
+
+  write ife b1 != b2 then 93 [] b1 = b2 then 0 fi; // writes 93
+  write ife b1 = b2  then 0  [] b1 != b2 then 92 fi; // writes 92
+
+  write ife (ife b2 = b3 then true [] b2 != b3 then false fi) then (ife false then 0 [] true then 91 fi)
+        []  (ife b2 = b3 then false [] b2 != b3 then true fi) then 0
+        fi;                                         // writes 91
+
+  // ife with multiple branches (only one enabled at a time)
+  write ife b1 then 90  []  b2 then x/0 []  b3 then x/0 fi; // writes 90 (no runtime error)
+  write ife b2 then x/0 []  b1 then 89  []  b3 then x/0 fi; // writes 89 (no runtime error)
+  write ife b2 then x/0 []  b3 then x/0 []  b1 then 88 fi;  // writes 88 (no runtime error)
+
+  // ife with multiple branches (many enabled at a time)
+  write ife b1 then 87  []  b2=b3 then 87 []  b1!=b2 then 87 fi // writes 87
+end

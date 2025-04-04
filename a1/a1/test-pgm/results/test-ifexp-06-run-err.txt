@@ -1,0 +1,15 @@
+Compiling test-ifexp-06-run-err.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+    21   ife b1 then r1 [] b2 then r2 [] b3 then r3 fi := 100
+******                                                    ^ Fatal: bounds check failed at line 20: 100 not in int[-2..2]
+PROC <main> : level 1
+	b1 = 0
+	b2 = 1
+	b3 = 0
+	r1 = -1
+	r2 = 1
+	r3 = 2
+
+1 error detected.

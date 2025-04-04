@@ -1,0 +1,12 @@
+Compiling test-gmassign02-run-err.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+    13   y := -1                                       // assigns to y again (runtime error)
+******   ^ Fatal: simultaneous assignment to the same left value
+PROC <main> : level 1
+	x = 1
+	y = 2
+	z = 3
+
+1 error detected.

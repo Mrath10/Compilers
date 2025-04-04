@@ -1,0 +1,19 @@
+// Correct program: maximum example from handout
+var
+  x: int;
+  y: int;
+  z: int;
+begin
+  x := 100;
+  y := 90;
+ z := ife x > y  then x
+      []  x <= y then y
+      fi;
+  write z; // writes 100
+  ife x > y then x [] x <= y then y fi := 0;
+  write x; // writes 0
+  write y;  // writes 90
+  ife x > y then x [] x <= y then y fi := 0;
+  write x; // writes 0
+  write y  // writes 0
+end

@@ -1,0 +1,17 @@
+Compiling test-ifexp-09-syn-err.pl0
+    14   write ife fi; // syntactical error
+******             ^  Error: 'fi' cannot start IfExpBranch
+    17   write ife true then 97 [] false then 0; // syntactical error
+******                                         ^  Error: Parse error, expecting 'fi' in IfExp
+    20   write ife b1 then 91 b2 then false [] b3 then true fi;  // syntactical error, able to recover and find type error
+******                        ^  Error: identifier("b2") cannot follow Factor in Term
+    23   write ife b1 then 91 [] [] b2 then false [] b3 then true fi // syntactical error, able to recover and find type errors
+******                           ^  Error: '[]' cannot start IfExpBranch
+Parsing complete
+    20   write ife b1 then 91 b2 then false [] b3 then true fi;  // syntactical error, able to recover and find type error
+******                                                 ^  Error: incompatible branch expression
+    23   write ife b1 then 91 [] [] b2 then false [] b3 then true fi // syntactical error, able to recover and find type errors
+******                                      ^  Error: incompatible branch expression
+******                                                       ^  Error: incompatible branch expression
+Static semantic analysis complete
+7 errors detected.
