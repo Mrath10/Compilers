@@ -53,6 +53,11 @@ public abstract class Value {
             }
             return (this.value == other.value);
         }
+
+        @Override
+        public int hashCode(){
+            return value;
+        }
     }
 
     public static class AddressValue extends Value {
@@ -84,6 +89,13 @@ public abstract class Value {
             }
             return (this.level == other.level && this.offset == other.offset);
         }
+
+        @Override
+        public int hashCode(){
+            int prime = 7;
+            return level + prime*offset;
+        }
+
     }
 
     public static class ErrorValue extends Value {
