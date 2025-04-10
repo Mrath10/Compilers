@@ -519,7 +519,7 @@ public class Parser {
                      * start set of every alternative contains just one token. */
                     switch (tokens.getKind()) {
                         case IDENTIFIER -> {
-                            return parseAssignment(recoverSet);
+                            return parseMultipleAssignment(recoverSet);
                         }
                         case KW_WHILE -> {
                             return parseWhileStatement(recoverSet);
@@ -569,6 +569,30 @@ public class Parser {
                     tokens.match(Token.ASSIGN, CONDITION_START_SET);
                     ExpNode right = parseCondition(recoverSet);
                     return new StatementNode.AssignmentNode(loc, left, right);
+                });
+    }
+
+    /**
+     * Rule: Multi Assignment -> LValue ASSIGN Condition | LValue ASSIGN Condition ...
+     */
+    private StatementNode parseMultipleAssignment(TokenSet recoverSet) {
+        return stmt.parse("MultipleAssignment", LVALUE_START_SET, recoverSet,
+                () -> {
+                    Location loc = tokens.getLocation();
+                    List<StatementNode.AssignmentNode> assignmentNodeList = new ArrayList<>();
+
+                    //inital assignment
+                    assignmentNodeList.add(parseAssignment(recoverSet.union(Token.BAR)));
+
+                    //others
+                    while (tokens.isMatch(Token.BAR)) {
+                        tokens.match(Token.BAR);
+                        assignmentNodeList.add(parseAssignment(recoverSet.union(Token.BAR)));
+                    }
+
+                    return assignmentNodeList.size() == 1 ? assignmentNodeList.getFirst() :
+                            new StatementNode.MultiAssignNode(loc, assignmentNodeList);
+
                 });
     }
 

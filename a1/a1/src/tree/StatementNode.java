@@ -191,6 +191,38 @@ public abstract class StatementNode {
     }
 
     /**
+     * Tree node for multiple assignment
+     */
+    public static class MultiAssignNode extends StatementNode {
+
+        private final List<AssignmentNode> assignmentNodeList;
+
+        public MultiAssignNode(Location loc, List<AssignmentNode> assignmentNodeList) {
+            super(loc);
+            this.assignmentNodeList = assignmentNodeList;
+        }
+
+        public List<AssignmentNode> getAssignmentNodeList() { return assignmentNodeList;}
+
+        @Override
+        public void accept(StatementVisitor visitor) {
+            visitor.visitMultiAssignNode(this);
+        }
+
+        @Override
+        public String toString(int level) {
+            StringBuilder statement = new StringBuilder();
+            String sepr = "";
+            for (AssignmentNode node: assignmentNodeList) {
+                statement.append(sepr).append(node.toString(level));
+                sepr = " | ";
+            }
+
+            return statement.toString();
+        }
+    }
+
+    /**
      * Tree node representing a "read" statement.
      */
     public static class ReadNode extends StatementNode {
