@@ -26,5 +26,5 @@ public interface StatementVisitor {
 
     void visitWhileNode(StatementNode.WhileNode node);
 
-    void visitMultiAssignNode(StatementNode.MultiAssignNode multiAssignNode);
+    void visitMultipleAssignmentNode(StatementNode.MultipleAssignmentNode node);
 }

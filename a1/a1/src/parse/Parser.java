@@ -557,7 +557,7 @@ public class Parser {
     * Rule: Assignment -> LValue ASSIGN Condition
     */
     private StatementNode.AssignmentNode parseAssignment(TokenSet recoverSet) {
-        return assign.parse("Assignment", LVALUE_START_SET, recoverSet,
+        return assign.parse("SingleAssign", LVALUE_START_SET, recoverSet,
                 () -> {
                     /* The current token is in LVALUE_START_SET.
                      * Non-standard recovery set includes EQUALS because a
@@ -576,7 +576,7 @@ public class Parser {
      * Rule: Multi Assignment -> LValue ASSIGN Condition | LValue ASSIGN Condition ...
      */
     private StatementNode parseMultipleAssignment(TokenSet recoverSet) {
-        return stmt.parse("MultipleAssignment", LVALUE_START_SET, recoverSet,
+        return stmt.parse("MultiAssign", LVALUE_START_SET, recoverSet,
                 () -> {
                     Location loc = tokens.getLocation();
                     List<StatementNode.AssignmentNode> assignmentNodeList = new ArrayList<>();
@@ -591,7 +591,7 @@ public class Parser {
                     }
 
                     return assignmentNodeList.size() == 1 ? assignmentNodeList.getFirst() :
-                            new StatementNode.MultiAssignNode(loc, assignmentNodeList);
+                            new StatementNode.MultipleAssignmentNode(loc, assignmentNodeList);
 
                 });
     }

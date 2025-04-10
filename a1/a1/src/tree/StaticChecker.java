@@ -138,6 +138,22 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         endCheck("Assignment");
     }
 
+    public void visitMultipleAssignmentNode (StatementNode.MultipleAssignmentNode node) {
+        beginCheck("MultipleAssignment");
+        Set<ExpNode> lValues = new HashSet<>();
+
+        for (AssignmentNode a : node.getAssignmentNodeList()) {
+            visitAssignmentNode(a);
+
+            if(!lValues.add(a.getLValue())) {
+                staticError("duplicate assignment to the same left value",
+                        a.getLValue().getLocation());
+            }
+        }
+
+        endCheck("MultipleAssignment");
+    }
+
     /**
      * Reads an integer value from input
      */

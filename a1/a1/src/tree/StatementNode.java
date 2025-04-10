@@ -193,11 +193,11 @@ public abstract class StatementNode {
     /**
      * Tree node for multiple assignment
      */
-    public static class MultiAssignNode extends StatementNode {
+    public static class MultipleAssignmentNode extends StatementNode {
 
         private final List<AssignmentNode> assignmentNodeList;
 
-        public MultiAssignNode(Location loc, List<AssignmentNode> assignmentNodeList) {
+        public MultipleAssignmentNode(Location loc, List<AssignmentNode> assignmentNodeList) {
             super(loc);
             this.assignmentNodeList = assignmentNodeList;
         }
@@ -206,7 +206,7 @@ public abstract class StatementNode {
 
         @Override
         public void accept(StatementVisitor visitor) {
-            visitor.visitMultiAssignNode(this);
+            visitor.visitMultipleAssignmentNode(this);
         }
 
         @Override

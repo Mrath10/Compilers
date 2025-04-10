@@ -137,6 +137,42 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
     }
 
     /**
+     * Execute code for multiple assignment
+     */
+    public void visitMultipleAssignmentNode(StatementNode.MultipleAssignmentNode node) {
+        beginExec("MultipleAssignment");
+
+        //eval left and right expressions
+        List<Value> lValues = new ArrayList<>();
+        List<Value> rValues = new ArrayList<>();
+
+        for (StatementNode.AssignmentNode a: node.getAssignmentNodeList()) {
+            lValues.add(a.getLValue().evaluate(this));
+            rValues.add(a.getExp().evaluate(this));
+        }
+
+        /**
+         *
+         */
+
+        // Check for duplicates
+        Set<Value> seen = new HashSet<>();
+        for (Value lValue : lValues) {
+            if (!seen.add(lValue)) {
+                runtime("simultaneous assignment to the same left value",
+                        node.getLocation(), currentFrame);
+            }
+        }
+
+        // Do assignments
+        for (int i = 0; i < lValues.size(); i++) {
+            assignValue(lValues.get(i), rValues.get(i));
+        }
+
+        endExec("MultipleAssignment");
+    }
+
+    /**
      * Execute code for a read statement - read an int from standard input
      */
     public void visitReadNode(StatementNode.ReadNode node) {
