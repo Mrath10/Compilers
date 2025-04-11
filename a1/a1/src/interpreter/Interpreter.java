@@ -145,22 +145,25 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         //eval left and right expressions
         List<Value> lValues = new ArrayList<>();
         List<Value> rValues = new ArrayList<>();
+        List<Location> lLocations = new ArrayList<>();
+
 
         for (StatementNode.AssignmentNode a: node.getAssignmentNodeList()) {
             lValues.add(a.getLValue().evaluate(this));
             rValues.add(a.getExp().evaluate(this));
+            lLocations.add(a.getLValue().getLocation());
         }
 
-        /**
-         *
-         */
-
         // Check for duplicates
-        Set<Value> seen = new HashSet<>();
-        for (Value lValue : lValues) {
-            if (!seen.add(lValue)) {
+        Set<String> seen = new HashSet<>();
+        for (int i=0; i < lValues.size(); i++) {
+
+            // duplicate checking using offset and level as a key
+            Value lVal = lValues.get(i);
+            String addressKey = lVal.getAddressLevel() + ":" + lVal.getAddressOffset();
+            if (!seen.add(addressKey)) {
                 runtime("simultaneous assignment to the same left value",
-                        node.getLocation(), currentFrame);
+                        lLocations.get(i), currentFrame);
             }
         }
 
