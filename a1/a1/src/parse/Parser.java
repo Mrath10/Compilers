@@ -453,6 +453,53 @@ public class Parser {
     }
 
     /**
+     *
+     * Rule IfExp -> KW_KFE IfExpBranch {Seperator IfExpBranch} KW_FI
+     */
+    private ExpNode parseIfExp(TokenSet recoverSet) {
+        return exp.parse("If Expression", Token.KW_IFE, recoverSet,
+                () -> {
+                    //match ife and get location
+                    tokens.match(Token.KW_IFE);
+                    Location loc = tokens.getLocation();
+
+                    List<ExpNode.IfExpNode.IfExpBranch> branches = new ArrayList<>();
+
+                    //first branch
+                    branches.add(parseIfExpBranch(
+                            recoverSet.union(Token.SEPARATOR, Token.KW_FI))
+                    );
+
+                    //extras
+                    while(tokens.isMatch(Token.SEPARATOR)) {
+                        tokens.match(Token.SEPARATOR);
+                        branches.add(parseIfExpBranch(
+                                recoverSet.union(Token.SEPARATOR, Token.KW_FI))
+                        );
+                    }
+
+                    //match fi
+                    tokens.match(Token.KW_FI, recoverSet);
+
+                    return new ExpNode.IfExpNode(loc, branches);
+
+                });
+    }
+
+    private ExpNode.IfExpNode.IfExpBranch parseIfExpBranch (TokenSet recoverSet) {
+
+        //parse guard
+        ExpNode guard = parseCondition(recoverSet.union(Token.KW_THEN));
+
+        //match then
+        tokens.match(Token.KW_THEN, CONDITION_START_SET);
+
+        ExpNode exp = parseCondition(recoverSet);
+
+        return new ExpNode.IfExpNode.IfExpBranch(guard, exp);
+    }
+
+    /**
      * Methods for parsing statements all return a StatementNode,
      * even in the case where there is an error, in which case they
      * return a StatementNode.ErrorNode.
@@ -1072,6 +1119,8 @@ public class Parser {
                     return procEntry;
                 });
     }
+
+
     //******************* Private convenience Methods ************************
 
     /**
