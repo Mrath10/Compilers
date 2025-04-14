@@ -194,7 +194,7 @@ public abstract class StatementNode {
      * Tree node for multiple assignment
      */
     public static class MultipleAssignmentNode extends StatementNode {
-
+        //TODO: Comments here
         private final List<AssignmentNode> assignmentNodeList;
 
         public MultipleAssignmentNode(Location loc, List<AssignmentNode> assignmentNodeList) {

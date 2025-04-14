@@ -138,13 +138,17 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         endCheck("Assignment");
     }
 
+    /**
+     *
+     * Multiple Assignment statement node, calls upon assignment node internally
+     */
     public void visitMultipleAssignmentNode (StatementNode.MultipleAssignmentNode node) {
         beginCheck("MultipleAssignment");
         Set<ExpNode> lValues = new HashSet<>();
-
+        //TODO: Comments
         for (AssignmentNode a : node.getAssignmentNodeList()) {
             visitAssignmentNode(a);
-
+            //TODO: Correct error message for this case
             if(!lValues.add(a.getLValue())) {
                 staticError("duplicate assignment to the same left value",
                         a.getLValue().getLocation());
@@ -413,6 +417,42 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
+    /**
+     * Handles if expression
+     */
+    public ExpNode visitIfExpNode(ExpNode.IfExpNode node) {
+        beginCheck("If Expression");
+
+        List<Type> branchTypes = new ArrayList<>();
+        //List<ExpNode.IfExpNode.IfExpBranch> checkedBranches = new ArrayList<>();
+
+        //check each branch
+        for (ExpNode.IfExpNode.IfExpBranch branch: node.getBranches()) {
+
+            //check guard is boolean
+            checkCondition(branch.guard());
+            //check branch expression
+            ExpNode checkedExp = branch.exp().transform(this);
+
+            branchTypes.add(checkedExp.getType());
+
+        }
+
+        //Join type of all expressions
+        Type result = Type.join(branchTypes);
+
+        //handle incompatability
+        if (result == Type.ERROR_TYPE)  {
+            staticError("Incompatible types in If expression", node.getLocation());
+        }
+
+        node.setType(result);
+        endCheck("If Expression");
+
+        return node;
+    }
+
+
 
     /**
      * A DereferenceNode allows a variable (of type ref(int) say) to be
@@ -496,6 +536,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         endCheck("WidenSubrange");
         return node;
     }
+
 
     //**************************** Support Methods
 

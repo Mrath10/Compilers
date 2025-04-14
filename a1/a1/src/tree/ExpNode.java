@@ -1,5 +1,6 @@
 package tree;
 
+import java.lang.classfile.instruction.BranchInstruction;
 import java.util.*;
 
 import interpreter.Value;
@@ -442,6 +443,54 @@ public abstract class ExpNode {
         public String toString() {
             return "WidenSubrange(" + exp + ":" + getType() + ")";
         }
+    }
+
+
+    public static class IfExpNode extends ExpNode {
+
+        //If expression branch inner class
+        public record IfExpBranch (ExpNode guard, ExpNode exp) {
+            @Override
+            public String toString() {
+                return guard.toString() + "then" + exp.toString();
+            }
+        }
+
+        private final List<IfExpBranch> branches;
+
+
+
+        public IfExpNode(Location loc, List<IfExpBranch> branches) {
+            super(loc);
+            this.branches = branches;
+        }
+
+        public List<IfExpBranch> getBranches() {return branches;}
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitIfExpNode(this);
+        }
+
+        @Override
+        public Value evaluate(ExpTransform<Value> evaluator) {
+            return evaluator.visitIfExpNode(this);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder("ïfe ");
+            String sepr = "";
+
+            for (IfExpBranch branch: branches) {
+                sb.append(sepr).append(branch);
+                sepr = " [] ";
+            }
+
+            sb.append(" fi");
+            return sb.toString();
+        }
+
     }
 
 }

@@ -573,11 +573,12 @@ public class Parser {
     }
 
     /**
-     * Rule: Multi Assignment -> LValue ASSIGN Condition | LValue ASSIGN Condition ...
+     * Rule: Multi Assignment -> LValue ASSIGN Condition | LValue ASSIGN Condition | ...
      */
     private StatementNode parseMultipleAssignment(TokenSet recoverSet) {
         return stmt.parse("MultiAssign", LVALUE_START_SET, recoverSet,
                 () -> {
+                    //TODO: Comments
                     Location loc = tokens.getLocation();
                     List<StatementNode.AssignmentNode> assignmentNodeList = new ArrayList<>();
 
@@ -589,7 +590,7 @@ public class Parser {
                         tokens.match(Token.BAR);
                         assignmentNodeList.add(parseAssignment(recoverSet.union(Token.BAR)));
                     }
-
+                    // if we have a single assignment return if not then it's a multiple assign
                     return assignmentNodeList.size() == 1 ? assignmentNodeList.getFirst() :
                             new StatementNode.MultipleAssignmentNode(loc, assignmentNodeList);
 
