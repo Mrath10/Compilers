@@ -441,14 +441,23 @@ public class Parser {
      * Rule: LValue -> IDENTIFIER
      */
     private ExpNode parseLValue(TokenSet recoverSet) {
-        return exp.parse("LValue", LVALUE_START_SET, recoverSet,
+        return exp.parse("LValue", LVALUE_START_SET.union(Token.KW_IFE), recoverSet,
                 () -> {
-                    /* The current token is in LVALUE_START_SET */
-                    ExpNode result =
-                            new ExpNode.IdentifierNode(tokens.getLocation(),
-                                    tokens.getName());
-                    tokens.match(Token.IDENTIFIER); /* cannot fail */
-                    return result;
+                    if (tokens.isMatch(Token.KW_IFE)) {
+
+                        return  parseIfExp(recoverSet);
+
+                    } else if (tokens.isMatch(Token.IDENTIFIER)) {
+                        /* The current token is in LVALUE_START_SET */
+                        ExpNode result =
+                                new ExpNode.IdentifierNode(tokens.getLocation(),
+                                        tokens.getName());
+                        tokens.match(Token.IDENTIFIER); /* cannot fail */
+                        return result;
+                    } else {
+                        fatal("Invalid LValue");
+                        return null;
+                    }
                 });
     }
 
