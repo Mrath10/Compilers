@@ -224,7 +224,7 @@ public class Parser {
      * Set of tokens that may start an LValue.
      */
     private final static TokenSet LVALUE_START_SET =
-            new TokenSet(Token.IDENTIFIER);
+            new TokenSet(Token.IDENTIFIER, Token.KW_IFE);
     /**
      * Set of tokens that may start a Factor.
      */
@@ -522,7 +522,8 @@ public class Parser {
     private final static TokenSet STATEMENT_START_SET =
             LVALUE_START_SET.union(Token.KW_WHILE, Token.KW_IF,
                     Token.KW_READ, Token.KW_WRITE,
-                    Token.KW_CALL, Token.KW_BEGIN);
+                    Token.KW_CALL, Token.KW_BEGIN,
+                    Token.KW_IFE);
 
     /**
      * Rule: CompoundStatement -> BEGIN StatementList END

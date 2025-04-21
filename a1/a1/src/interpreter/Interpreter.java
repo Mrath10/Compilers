@@ -411,7 +411,18 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
 
 
     public Value visitIfExpNode(ExpNode.IfExpNode node) {
-
+        beginExec("IfExpression");
+        //eval branches
+        for (ExpNode.IfExpNode.IfExpBranch branch : node.getBranches()) {
+            int condition = branch.guard().evaluate(this).getInteger();
+            if (condition == Type.TRUE_VALUE) {
+                Value result = branch.exp().evaluate(this);
+                endExec("IfExpression");
+                return result;
+            }
+        }
+        //no branch selected
+        runtime("no alternative can be selected", node.getLocation(), currentFrame);
         return null;
     }
 
