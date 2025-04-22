@@ -471,8 +471,8 @@ public class Parser {
         return exp.parse("IfExp", Token.KW_IFE, recoverSet,
                 () -> {
                     //match ife and get location
-                    tokens.match(Token.KW_IFE);
                     Location loc = tokens.getLocation();
+                    tokens.match(Token.KW_IFE);
                     List<ExpNode.IfExpNode.IfExpBranch> branches = new ArrayList<>();
 
                     //first branch

@@ -440,26 +440,33 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         }
 
+        boolean allCompatible = true;
         //Join type of all expressions
         Type result = branchTypes.getFirst();
         for (int i =1; i < branchTypes.size(); i++) {
             Type joined = Type.join(result, branchTypes.get(i));
-            //handle incompatability
-            if (joined == Type.ERROR_TYPE)  {
+            //handle incompatability and ensure that we haven't already captured an error above or before
+            if (joined == Type.ERROR_TYPE && result != Type.ERROR_TYPE
+                    && branchTypes.get(i) != Type.ERROR_TYPE)  {
+                allCompatible = false;
                 staticError("incompatible branch expression",
                         checkedBranches.get(i).exp().getLocation());
-            } else {
+            } else if (joined != Type.ERROR_TYPE) {
                 result = joined;
             }
         }
 
-        //coerce to final type if possible
-        for (int i = 0; i < branchTypes.size(); i++) {
-            ExpNode coerced = result.coerceExp(
-                    checkedBranches.get(i).exp());
-            checkedBranches.set(i,
-                    new ExpNode.IfExpNode.IfExpBranch(
-                            checkedBranches.get(i).guard(), coerced));
+        if (allCompatible) {
+            //coerce to final type if possible
+            for (int i = 0; i < branchTypes.size(); i++) {
+                ExpNode coerced = result.coerceExp(
+                        checkedBranches.get(i).exp());
+                checkedBranches.set(i,
+                        new ExpNode.IfExpNode.IfExpBranch(
+                                checkedBranches.get(i).guard(), coerced));
+            }
+        } else {
+            result = Type.ERROR_TYPE;
         }
 
         //build new expnode containing fixed
