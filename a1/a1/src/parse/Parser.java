@@ -419,7 +419,9 @@ public class Parser {
                 () -> {
                     /* The current token is in FACTOR_START_SET */
                     ExpNode result = null;
-                    if (tokens.isIn(LVALUE_START_SET)) {
+                    if (tokens.isMatch(Token.KW_IFE)) {
+                        result = parseIfExp(recoverSet);
+                    } else if (tokens.isIn(LVALUE_START_SET)) {
                         result = parseLValue(recoverSet);
                     } else if (tokens.isMatch(Token.NUMBER)) {
                         result = new ExpNode.ConstNode(tokens.getLocation(),
@@ -466,12 +468,11 @@ public class Parser {
      * Rule IfExp -> KW_KFE IfExpBranch {Seperator IfExpBranch} KW_FI
      */
     private ExpNode parseIfExp(TokenSet recoverSet) {
-        return exp.parse("If Expression", Token.KW_IFE, recoverSet,
+        return exp.parse("IfExp", Token.KW_IFE, recoverSet,
                 () -> {
                     //match ife and get location
                     tokens.match(Token.KW_IFE);
                     Location loc = tokens.getLocation();
-
                     List<ExpNode.IfExpNode.IfExpBranch> branches = new ArrayList<>();
 
                     //first branch
@@ -497,15 +498,19 @@ public class Parser {
 
     private ExpNode.IfExpNode.IfExpBranch parseIfExpBranch (TokenSet recoverSet) {
 
-        //parse guard
-        ExpNode guard = parseCondition(recoverSet.union(Token.KW_THEN));
+        return br.parse("IfExpBranch", CONDITION_START_SET, recoverSet,
+                () -> {
+                    //parse guard
+                    ExpNode guard = parseCondition(recoverSet.union(Token.KW_THEN));
 
-        //match then
-        tokens.match(Token.KW_THEN, CONDITION_START_SET);
+                    //match then
+                    tokens.match(Token.KW_THEN, EXP_START_SET);
 
-        ExpNode exp = parseCondition(recoverSet);
+                    ExpNode exp = parseExp(recoverSet);
 
-        return new ExpNode.IfExpNode.IfExpBranch(guard, exp);
+                    return new ExpNode.IfExpNode.IfExpBranch(guard, exp);
+
+                });
     }
 
     /**
@@ -515,6 +520,15 @@ public class Parser {
      */
     private final ParseMethod<StatementNode> stmt = new ParseMethod<>(
             (Location loc) -> new StatementNode.ErrorNode(loc) );
+
+    /**
+     * Method to parse branch
+     */
+    private final ParseMethod<ExpNode.IfExpNode.IfExpBranch> br =
+            new ParseMethod<>(loc ->
+                    new ExpNode.IfExpNode.IfExpBranch(
+                            new ExpNode.ErrorNode(loc),
+                            new ExpNode.ErrorNode(loc)));
 
     /**
      * Set of tokens that may start a Statement.

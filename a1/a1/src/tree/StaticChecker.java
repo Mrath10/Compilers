@@ -421,35 +421,55 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
      * Handles if expression
      */
     public ExpNode visitIfExpNode(ExpNode.IfExpNode node) {
-        beginCheck("If Expression");
+        beginCheck("IfExp");
 
+        List<ExpNode.IfExpNode.IfExpBranch> checkedBranches = new ArrayList<>();
         List<Type> branchTypes = new ArrayList<>();
-        //List<ExpNode.IfExpNode.IfExpBranch> checkedBranches = new ArrayList<>();
+
 
         //check each branch
         for (ExpNode.IfExpNode.IfExpBranch branch: node.getBranches()) {
 
             //check guard is boolean
-            checkCondition(branch.guard());
+            ExpNode guard = checkCondition(branch.guard());
             //check branch expression
             ExpNode checkedExp = branch.exp().transform(this);
 
+            checkedBranches.add(new ExpNode.IfExpNode.IfExpBranch(guard, checkedExp));
             branchTypes.add(checkedExp.getType());
 
         }
 
         //Join type of all expressions
-        Type result = Type.join(branchTypes);
-
-        //handle incompatability
-        if (result == Type.ERROR_TYPE)  {
-            staticError("Incompatible types in If expression", node.getLocation());
+        Type result = branchTypes.getFirst();
+        for (int i =1; i < branchTypes.size(); i++) {
+            Type joined = Type.join(result, branchTypes.get(i));
+            //handle incompatability
+            if (joined == Type.ERROR_TYPE)  {
+                staticError("incompatible branch expression",
+                        checkedBranches.get(i).exp().getLocation());
+            } else {
+                result = joined;
+            }
         }
 
-        node.setType(result);
-        endCheck("If Expression");
+        //coerce to final type if possible
+        for (int i = 0; i < branchTypes.size(); i++) {
+            ExpNode coerced = result.coerceExp(
+                    checkedBranches.get(i).exp());
+            checkedBranches.set(i,
+                    new ExpNode.IfExpNode.IfExpBranch(
+                            checkedBranches.get(i).guard(), coerced));
+        }
 
-        return node;
+        //build new expnode containing fixed
+        ExpNode.IfExpNode fixed =
+                new ExpNode.IfExpNode(node.getLocation(), checkedBranches);
+        fixed.setType(result);
+
+        //node.setType(result);
+        endCheck("IfExp");
+        return fixed;
     }
 
 
