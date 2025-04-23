@@ -589,7 +589,7 @@ public class Parser {
                      * of using a switch statement can be used because the
                      * start set of every alternative contains just one token. */
                     switch (tokens.getKind()) {
-                        case IDENTIFIER -> {
+                        case IDENTIFIER, KW_IFE -> {
                             return parseMultipleAssignment(recoverSet);
                         }
                         case KW_WHILE -> {
