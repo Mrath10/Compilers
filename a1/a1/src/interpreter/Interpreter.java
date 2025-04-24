@@ -147,7 +147,7 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         List<Value> rValues = new ArrayList<>();
         List<Location> lLocations = new ArrayList<>();
 
-        //TODO: Comments
+        //evaluate every left and right sub-expression
         for (StatementNode.AssignmentNode a: node.getAssignmentNodeList()) {
             lValues.add(a.getLValue().evaluate(this));
             rValues.add(a.getExp().evaluate(this));

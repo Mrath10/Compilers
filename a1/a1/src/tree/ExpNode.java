@@ -445,10 +445,12 @@ public abstract class ExpNode {
         }
     }
 
-
+    /**
+     * Tree node representing an if expression
+     */
     public static class IfExpNode extends ExpNode {
 
-        //If expression branch inner class
+        //record to represent ordered list of branches
         public record IfExpBranch (ExpNode guard, ExpNode exp) {
             @Override
             public String toString() {

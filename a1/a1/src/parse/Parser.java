@@ -470,7 +470,7 @@ public class Parser {
     private ExpNode parseIfExp(TokenSet recoverSet) {
         return exp.parse("IfExp", Token.KW_IFE, recoverSet,
                 () -> {
-                    //match ife and get location
+                    //get location then match ife and consume
                     Location loc = tokens.getLocation();
                     tokens.match(Token.KW_IFE);
                     List<ExpNode.IfExpNode.IfExpBranch> branches = new ArrayList<>();
@@ -589,7 +589,7 @@ public class Parser {
                      * of using a switch statement can be used because the
                      * start set of every alternative contains just one token. */
                     switch (tokens.getKind()) {
-                        case IDENTIFIER, KW_IFE -> {
+                        case IDENTIFIER, KW_IFE -> { // both assignments handled here
                             return parseMultipleAssignment(recoverSet);
                         }
                         case KW_WHILE -> {
@@ -649,14 +649,14 @@ public class Parser {
     private StatementNode parseMultipleAssignment(TokenSet recoverSet) {
         return stmt.parse("MultiAssign", LVALUE_START_SET, recoverSet,
                 () -> {
-                    //TODO: Comments
+                    // list of assignments that are executed if occuring simultaneously
                     Location loc = tokens.getLocation();
                     List<StatementNode.AssignmentNode> assignmentNodeList = new ArrayList<>();
 
                     //inital assignment
                     assignmentNodeList.add(parseAssignment(recoverSet.union(Token.BAR)));
 
-                    //others
+                    //other asssignments addded ensuring left to right order
                     while (tokens.isMatch(Token.BAR)) {
                         tokens.match(Token.BAR);
                         assignmentNodeList.add(parseAssignment(recoverSet.union(Token.BAR)));

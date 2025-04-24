@@ -144,11 +144,13 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
      */
     public void visitMultipleAssignmentNode (StatementNode.MultipleAssignmentNode node) {
         beginCheck("MultipleAssignment");
+        //hashset to ensure all l-values are distinct
         Set<ExpNode> lValues = new HashSet<>();
-        //TODO: Comments
+        //check all l values
         for (AssignmentNode a : node.getAssignmentNodeList()) {
+            //normal assignment
             visitAssignmentNode(a);
-            //TODO: Correct error message for this case
+            //same l-value added twice
             if(!lValues.add(a.getLValue())) {
                 staticError("duplicate assignment to the same left value",
                         a.getLValue().getLocation());
@@ -418,7 +420,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     }
 
     /**
-     * Handles if expression
+     * Handles if expression static semantics
      */
     public ExpNode visitIfExpNode(ExpNode.IfExpNode node) {
         beginCheck("IfExp");
@@ -427,7 +429,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         List<Type> branchTypes = new ArrayList<>();
 
 
-        //check each branch
+        //type check guard and expression
         for (ExpNode.IfExpNode.IfExpBranch branch: node.getBranches()) {
 
             //check guard is boolean
@@ -441,7 +443,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         }
 
         boolean allCompatible = true;
-        //Join type of all expressions
+        //Join type of all expressions and record mismatches
         Type result = branchTypes.getFirst();
         for (int i =1; i < branchTypes.size(); i++) {
             Type joined = Type.join(result, branchTypes.get(i));
@@ -457,7 +459,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         }
 
         if (allCompatible) {
-            //coerce to final type if possible
+            //coerce every expression to result
             for (int i = 0; i < branchTypes.size(); i++) {
                 ExpNode coerced = result.coerceExp(
                         checkedBranches.get(i).exp());
