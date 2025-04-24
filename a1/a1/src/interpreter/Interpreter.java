@@ -142,7 +142,6 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
     public void visitMultipleAssignmentNode(StatementNode.MultipleAssignmentNode node) {
         beginExec("MultipleAssignment");
 
-        //eval left and right expressions
         List<Value> lValues = new ArrayList<>();
         List<Value> rValues = new ArrayList<>();
         List<Location> lLocations = new ArrayList<>();
