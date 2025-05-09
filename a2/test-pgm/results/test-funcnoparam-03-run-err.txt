@@ -1,0 +1,15 @@
+Compiling test-funcnoparam-03-run-err.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+1
+0
+1
+1
+3
+
+Runtime error: expression out of bounds
+
+Terminated
+No errors detected.

@@ -1,0 +1,22 @@
+Compiling test-refrec-09-ss-err.pl0
+Parsing complete
+    28   r3 := new R1(s, b, r2); // ss error: R1 is not the type of r3 (we do not use structural equivalence)
+******         ^  Error: cannot treat RECORD x:S; y:boolean; z:R2 END as RECORD x:S; y:boolean; z:R2 END
+    30   if r1 = r2 then write -1 else write -2;  // ss error: r1 and r2 cannot be compared
+******         ^  Error: Type of argument (ref(R1)*ref(R2)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean) & ((R1*R1)->boolean) & ((R2*R2)->boolean) & ((R3*R3)->boolean))
+    31   if r1 != r2 then write -1 else write -2; // ss error: r1 and r2 cannot be compared
+******         ^  Error: Type of argument (ref(R1)*ref(R2)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean) & ((R1*R1)->boolean) & ((R2*R2)->boolean) & ((R3*R3)->boolean))
+    32   if r1 = r3 then write -1 else write -2;  // ss error: r1 and r3 cannot be compared
+******         ^  Error: Type of argument (ref(R1)*ref(R3)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean) & ((R1*R1)->boolean) & ((R2*R2)->boolean) & ((R3*R3)->boolean))
+    33   if r1 != r3 then write -1 else write -2; // ss error: r1 and r3 cannot be compared
+******         ^  Error: Type of argument (ref(R1)*ref(R3)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean) & ((R1*R1)->boolean) & ((R2*R2)->boolean) & ((R3*R3)->boolean))
+    34   if s = r1 then write -1 else write -2;   // ss error: s and r1 cannot be compared
+******        ^  Error: Type of argument (ref(S)*ref(R1)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean) & ((R1*R1)->boolean) & ((R2*R2)->boolean) & ((R3*R3)->boolean))
+    35   if s != r1 then write -1 else write -2;  // ss error: s and r1 cannot be compared
+******        ^  Error: Type of argument (ref(S)*ref(R1)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean) & ((R1*R1)->boolean) & ((R2*R2)->boolean) & ((R3*R3)->boolean))
+    37   r1 := r2; // not possible because r1 and r2 have different record types
+******         ^  Error: cannot treat RECORD w:int END as RECORD x:S; y:boolean; z:R2 END
+    38   r1 := r3 // not possible because r1 and r3 have different record types
+******         ^  Error: cannot treat RECORD x:S; y:boolean; z:R2 END as RECORD x:S; y:boolean; z:R2 END
+Static semantic analysis complete
+9 errors detected.

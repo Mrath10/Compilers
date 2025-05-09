@@ -1,0 +1,13 @@
+Compiling test-refrec-07.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+54000
+5
+14706
+7
+7
+
+Terminated
+No errors detected.

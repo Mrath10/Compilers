@@ -1,0 +1,24 @@
+// Incorrect program: static semantics errors with return statements and type of function calls
+var
+  x: int;
+  y: int;
+procedure func1(): int =
+  begin
+     return false //ss error: false not assignment compatible with int
+  end;
+procedure func2(): boolean =
+  begin
+     return x-1  //ss error: x-1 not assignment compatible with boolean
+  end;
+procedure proc() =
+  begin
+     y := x-2;
+     return y // ss error: return statement not valid in a non-function procedure
+  end;
+begin
+  x := 101;
+  write func1();
+  write func2(); //ss error: return type of function not compatible with int
+  call proc();
+  write y
+end

@@ -1,0 +1,29 @@
+// Incorrect program: Erroneous field accesses
+type
+    S = [1..31];
+    R1 = record
+           x: S;
+           y: boolean;
+           z: R2
+         end;
+    R2 = record
+           w: int
+         end;
+var
+    r1: R1;
+    r2: R2;
+    s: S;
+    b: boolean;
+begin
+  s := 20;
+  b := true;
+  r2 := new R2(5);
+  r1 := new R1(s, b, r2);
+  write r1.z;        // ss error: r1.z cannot be coerced to an integer
+  write r1.x;
+  write r1.w;        // ss error: w not a field of r (undeclared field referenced)
+  r1.x := 22;
+  r1.w := 33;        // ss error: w is not a field of r (undeclared field referenced)
+  s.x := s.x + 6;    // ss error: s does not have a record type
+  nil.x := nil.x + 1 // ss error: x is not a field of nil
+end
