@@ -481,6 +481,26 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
+    /**
+     * Handles fields in records
+     */
+
+    // TODO: finish this
+    public ExpNode visitFieldNode (ExpNode.FieldNode node ) {
+
+        return null;
+    }
+
+    /**
+     * Handles records
+     */
+
+    // TODO: finish this
+    public ExpNode visitNewNode (ExpNode.NewNode node ) {
+
+        return null;
+    }
+
     //**************************** Support Methods
 
     /**

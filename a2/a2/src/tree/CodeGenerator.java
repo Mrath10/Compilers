@@ -413,6 +413,18 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         endGen("WidenSubrange");
         return code;
     }
+
+    /**
+     * Generate code for fields in records
+     */
+    // TODO: Finish this
+    public Code visitFieldNode (ExpNode.FieldNode node) {
+        return null;
+    }
+    // TODO: Finish this
+    public Code visitNewNode (ExpNode.NewNode node) {
+        return null;
+    }
     //**************************** Support Methods
 
     /**

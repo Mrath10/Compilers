@@ -443,5 +443,70 @@ public abstract class ExpNode {
         }
     }
 
+    public static class FieldNode extends ExpNode {
+
+        private final ExpNode record;
+        private final String fieldName;
+        private SymEntry.VarEntry fieldEntry;
+
+        public FieldNode (Location loc, ExpNode record, String fieldName) {
+            super(loc);
+            this.record = record;
+            this.fieldName = fieldName;
+        }
+
+        public  ExpNode getRecord() {return record; }
+        public String getFieldName() {return  fieldName; }
+        public SymEntry.VarEntry getFieldEntry() {return fieldEntry; }
+        public void setFieldEntry(SymEntry.VarEntry entry){this.fieldEntry = entry; }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitFieldNode(this);
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitFieldNode(this);
+        }
+
+        @Override
+        public String toString() {
+            return record.toString() + "." + fieldName;
+        }
+    }
+
+    public static class NewNode extends ExpNode {
+
+        private final Type type;
+        private final List<ExpNode> fieldValues;
+
+        public NewNode(Location loc, Type type, List<ExpNode> fieldValues) {
+            super(loc, type);
+            this.type = type;
+            this.fieldValues = fieldValues;
+
+        }
+
+        public Type getRecordType() {return type; }
+        public List<ExpNode> getFieldValues()  {return fieldValues; }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitNewNode(this);
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitNewNode(this);
+        }
+
+        @Override
+        public String toString() {
+            return "new " + type + fieldValues;
+        }
+
+    }
+
 
 }
