@@ -1,0 +1,10 @@
+Compiling test-refrec-10-run-err.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+
+Runtime error: nil record access
+
+Terminated
+No errors detected.

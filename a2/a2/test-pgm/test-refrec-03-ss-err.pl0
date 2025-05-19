@@ -1,0 +1,27 @@
+// Incorrect program: erroneous record type declaration
+type
+    R1 = record
+           w: int;
+           x: int;
+           y: int;
+           x: int // x repeated field name (static semantics error but reported during parsing)
+         end;
+    R2 = record
+           m: int;
+           n: S // ss error: undefined type
+         end;
+var
+    r1: R1;
+    r2: R2;
+begin
+  r1 := new R1(99, 98, 97, 96);
+  write r1.w;
+  write r1.x;
+  write r1.y;
+  r1.x := 0;
+  write r1.x;
+
+  r2 := new R2(5, false);
+  write r2.m;
+  write r2.n
+end

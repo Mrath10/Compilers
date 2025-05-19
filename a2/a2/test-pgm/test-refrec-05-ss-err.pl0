@@ -1,0 +1,32 @@
+// Incorrect program: Erroneous new record expressions
+type
+    S = [1..31];
+    R1 = record
+           x: S;
+           y: boolean;
+           z: R2
+         end;
+    R2 = record
+           w: int
+         end;
+var
+    r1: R1;
+    s: S;
+    b: boolean;
+    r2: R2;
+begin
+  s := new S(1);       // ss error: S is not a record type
+  r1 := new s(1,2,3);  // ss error: s is not a record type
+  r1 := new bbb(1,2,3);// ss error: bbb is not a record type
+  r1 := new R2(5);     // ss error: R2 is the wrong record type
+
+  s := 20;
+  b := true;
+  r2 := new R2(5);
+
+  r1 := new R1(s, b, r2, 96); // ss error: more expressions than fields in the record
+  r1 := new R1(s, b);         // ss error: fewer expressions than fields in the record
+
+  r1 := new R1(b, r2, s)     // ss error: field values have incorrect types
+
+end

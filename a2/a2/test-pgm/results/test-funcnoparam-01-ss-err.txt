@@ -1,0 +1,10 @@
+Compiling test-funcnoparam-01-ss-err.pl0
+Parsing complete
+    18   write nofunc(); // ss error: function nofunc is not declared
+******         ^  Error: nofunc should be a function
+    19   call func();   // ss error: function used in a call statement
+******        ^  Error: cannot call a function from a call statement
+    20   write proc()   // ss error: procedure used in an expression
+******         ^  Error: proc should be a function
+Static semantic analysis complete
+3 errors detected.

@@ -1,0 +1,10 @@
+Compiling test-refrec-04-syn-err.pl0
+     5           end;
+******           ^  Error: PL0 syntax error
+    13   r1 := new RT1(); // syntax error - a new record expression can't have an empty list of field values
+******                 ^  Error: PL0 syntax error, expecting {PLUS,MINUS,LPAREN,KW_NEW,IDENTIFIER,NUMBER}
+    14   r2 := new RT2()  // syntax error - a new record expression can't have an empty list of field values
+******                 ^  Error: PL0 syntax error, expecting {PLUS,MINUS,LPAREN,KW_NEW,IDENTIFIER,NUMBER}
+Parsing complete
+Static semantic analysis complete
+3 errors detected.

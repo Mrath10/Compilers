@@ -408,11 +408,14 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         return result;
     }
 
-
+    /**
+     * Expression evaluation for If expressions
+     */
     public Value visitIfExpNode(ExpNode.IfExpNode node) {
         beginExec("IfExp");
-        //eval branches
+        //go through all branches and evaluate
         for (ExpNode.IfExpNode.IfExpBranch branch : node.getBranches()) {
+            //evaluate the guard and if true evaluate the expression
             int condition = branch.guard().evaluate(this).getInteger();
             if (condition == Type.TRUE_VALUE) {
                 Value result = branch.exp().evaluate(this);
