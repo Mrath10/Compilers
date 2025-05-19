@@ -488,7 +488,31 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     // TODO: finish this
     public ExpNode visitFieldNode (ExpNode.FieldNode node ) {
 
-        return null;
+        beginCheck("Field");
+        //check and transform record
+        ExpNode record = node.getRecord().transform(this);
+
+        //has to be record type
+        if (record.getType() instanceof Type.RecordType recordType) {
+            // look at the field
+            Type.Field field = recordType.getField(node.getFieldName());
+
+            if(field != null) {
+                // make var entry for field
+                // TODO: cant add offset here
+                node.setFieldInfo(field.getOffset(), field.getType());
+                node.setType(field.getType());
+            } else {
+                staticError("no field '" + node.getFieldName() + "' in record",
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+            }
+        } else if (record.getType() != Type.ERROR_TYPE) {
+            staticError("record type expected", node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        }
+        endCheck("Field");
+        return node;
     }
 
     /**
@@ -497,8 +521,31 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
     // TODO: finish this
     public ExpNode visitNewNode (ExpNode.NewNode node ) {
+        beginCheck("new");
 
-        return null;
+        if (node.getRecordType() instanceof  Type.RecordType recordType) {
+            List<Type.Field> fields = recordType.getFieldList();
+            List<ExpNode> values = node.getFieldValues();
+
+            if (fields.size() != values.size()) {
+
+                staticError("invalid number of field initializers",
+                        node.getLocation());
+            } else {
+                // check all field initalisers
+                for (int i = 0; i < fields.size(); i++) {
+                    ExpNode init = values.get(i).transform(this);
+                    values.set(i, fields.get(i).getType().coerceExp(init));
+                }
+            }
+            node.setType(recordType);
+        } else {
+            staticError("record type expceted", node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        }
+
+        endCheck("new");
+        return node;
     }
 
     //**************************** Support Methods

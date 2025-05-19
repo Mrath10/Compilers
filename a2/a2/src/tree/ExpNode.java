@@ -445,9 +445,10 @@ public abstract class ExpNode {
 
     public static class FieldNode extends ExpNode {
 
-        private final ExpNode record;
+        private ExpNode record;
         private final String fieldName;
-        private SymEntry.VarEntry fieldEntry;
+        private int fieldOffset;
+        private Type fieldType;
 
         public FieldNode (Location loc, ExpNode record, String fieldName) {
             super(loc);
@@ -457,8 +458,11 @@ public abstract class ExpNode {
 
         public  ExpNode getRecord() {return record; }
         public String getFieldName() {return  fieldName; }
-        public SymEntry.VarEntry getFieldEntry() {return fieldEntry; }
-        public void setFieldEntry(SymEntry.VarEntry entry){this.fieldEntry = entry; }
+        public int getFieldOffset() {return fieldOffset; }
+        public void setFieldInfo (int offset, Type type) {
+            this.fieldOffset = offset;
+            this.fieldType = type;
+        }
 
         @Override
         public ExpNode transform(ExpTransform<ExpNode> visitor) {
