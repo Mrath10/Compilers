@@ -353,18 +353,18 @@ Type ::= TypeIdentifier:type
         {:
             RESULT = new Type.SubrangeType(subrxleft, lo, hi);
         :}
-    /*
+
     | KW_RECORD:rec Fields:f KW_END
         {:
             RESULT = new Type.RecordType(recxleft, f);
         :}
-    */
+
     | error:err
         {:
             RESULT = Type.ERROR_TYPE;
         :}
     ;
-/*
+
 Fields ::= Field:first
         {:
             List<Type.Field> fields = new ArrayList<>();
@@ -384,7 +384,7 @@ Field ::= IDENTIFIER:id COLON TypeIdentifier:type
             RESULT = new Type.FIELD(idxleft, id, type);
         :}
 ;
-*/
+
 TypeIdentifier ::= IDENTIFIER:id
         {: /* As the type identifier may not be defined at this point.
             * IdRefType records the id, as well as the symbol table scope
@@ -522,12 +522,10 @@ LValue ::= IDENTIFIER:id
              */
             RESULT = new ExpNode.IdentifierNode(idxleft, id);
         :}
- /*
      | LValue:lv PERIOD IDENTIFIER:id
          {:
              RESULT = new ExpNode.FieldNode(lvxleft, lv, id);
          :}
- */
     | error:e
         {:
             RESULT = new ExpNode.ErrorNode(exleft);
@@ -638,6 +636,12 @@ Factor ::= PLUS Factor:e
             RESULT = new ExpNode.ConstNode(nxleft, 
                     Predefined.INTEGER_TYPE, n);
         :}
+   /* expression production */
+    |  KW_NEW TypeIdentifier:type LPAREN ExpList:el RPAREN
+        {:
+            RESULT = new ExpNode.NewNode(typexleft, type, el);
+        :}
+
     |  LValue:lval
         {:
             RESULT = lval;
@@ -648,4 +652,25 @@ UnaryOperator ::= MINUS
         {:
             RESULT = Operator.NEG_OP;
         :}
+    ;
+
+ExpList ::=
+    {:
+        RESULT = new ArrayList<ExpNode>();
+    :}
+
+    |  Condition:first
+        {:
+            List<ExpNode> exps = new ArrayList<>();
+            exp.add(first);
+            RESULT = exps;
+        :}
+
+    |  Condition:exps COMMA Condition:next
+        {:
+            exps.add(next);
+            RESULT = exps;
+        :}
+
+
     ;
