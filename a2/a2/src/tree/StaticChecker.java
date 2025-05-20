@@ -269,11 +269,14 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
          * The operator may not be defined.
          */
         SymEntry.OperatorEntry opEntry = currentScope.lookupOperator(node.getOp().getName());
+
         if (opEntry == null) {
             staticError("operator not defined", node.getLocation());
             node.setType(Type.ERROR_TYPE);
             node.setOp(Operator.INVALID_OP);
-        } else if (opEntry.getType() instanceof Type.OperatorType operatorType) {
+        }
+
+        else if (opEntry.getType() instanceof Type.OperatorType operatorType) {
             /* The operator is not overloaded. Its type is represented
              * by a FunctionType from its argument's type to its
              * result type.
@@ -524,6 +527,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         beginCheck("new");
 
         if (node.getRecordType() instanceof  Type.RecordType recordType) {
+
             List<Type.Field> fields = recordType.getFieldList();
             List<ExpNode> values = node.getFieldValues();
 

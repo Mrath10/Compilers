@@ -457,8 +457,10 @@ public abstract class ExpNode {
         }
 
         public  ExpNode getRecord() {return record; }
+        public  void setRecord(ExpNode record) { this.record= record; }
         public String getFieldName() {return  fieldName; }
         public int getFieldOffset() {return fieldOffset; }
+        private Type getFieldType() {return  fieldType;}
         public void setFieldInfo (int offset, Type type) {
             this.fieldOffset = offset;
             this.fieldType = type;

@@ -419,11 +419,34 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
      */
     // TODO: Finish this
     public Code visitFieldNode (ExpNode.FieldNode node) {
-        return null;
+
+        beginGen("Field");
+        Code code = node.getRecord().genCode(this);
+        code.genLoadConstant(node.getFieldOffset());
+        code.generateOp(Operation.ADD);
+        endGen("Field");
+        return code;
     }
     // TODO: Finish this
     public Code visitNewNode (ExpNode.NewNode node) {
-        return null;
+        beginGen("New");
+        Code code = new Code();
+        code.genLoadConstant(node.getRecordType().getSpace());
+        code.generateOp(Operation.ALLOC_HEAP);
+
+        List<ExpNode> values = node.getFieldValues();
+        for(int i=0; i < values.size(); i++) {
+            //duplicate record address
+            code.generateOp(Operation.DUP);
+            // calc field adress
+            code.genLoadConstant(i);
+            code.generateOp(Operation.ADD);
+            code.append(values.get(i).genCode(this));
+            //store field value using the type
+            code.genStore(values.get(i).getType());
+        }
+        endGen("New");
+        return code;
     }
     //**************************** Support Methods
 
