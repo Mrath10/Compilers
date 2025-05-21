@@ -268,8 +268,53 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         /* Lookup the operator in the symbol table to get its type.
          * The operator may not be defined.
          */
-        SymEntry.OperatorEntry opEntry = currentScope.lookupOperator(node.getOp().getName());
 
+        Operator op = node.getOp();
+        if (op == Operator.EQUALS_OP || op == Operator.NEQUALS_OP) {
+
+            Type lt = left.getType();
+            Type rt = right.getType();
+
+            /* (a) ref(R)  op  ref(R)  — only if it’s the *same* record type */
+            if (lt instanceof Type.ReferenceType lref &&
+                    rt instanceof Type.ReferenceType rref &&
+                    lref.getBaseType().equals(rref.getBaseType()) &&
+                    lref.getBaseType().getRecordType() != null) {
+
+                node.setType(Predefined.BOOLEAN_TYPE);
+                endCheck("Binary");
+                return node;
+            }
+
+            /* (b) ref(R)  op  nil   OR   nil  op  ref(R) */
+            if (lt instanceof Type.ReferenceType lrecRef &&
+                    lt.getRecordType() != null &&
+                    rt.equals(Predefined.NIL_TYPE)) {
+
+                /* coerce nil to ref(R) so both operands have the same type  */
+                right = lrecRef.coerceExp(right);
+                node.setRight(right);
+                node.setType(Predefined.BOOLEAN_TYPE);
+                endCheck("Binary");
+                return node;
+            }
+
+            if (rt instanceof Type.ReferenceType rrecRef &&
+                    rt.getRecordType() != null &&
+                    lt.equals(Predefined.NIL_TYPE)) {
+
+                left = rrecRef.coerceExp(left);
+                node.setLeft(left);
+                node.setType(Predefined.BOOLEAN_TYPE);
+                endCheck("Binary");
+                return node;
+            }
+        /*  If none of the three situations matched we just fall
+            through to the ordinary operator-table lookup below.        */
+        }
+
+
+        SymEntry.OperatorEntry opEntry = currentScope.lookupOperator(node.getOp().getName());
         if (opEntry == null) {
             staticError("operator not defined", node.getLocation());
             node.setType(Type.ERROR_TYPE);
@@ -495,8 +540,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         //check and transform record
         ExpNode record = node.getRecord().transform(this);
 
+        //unwrap reference
+        Type.RecordType recordType = record.getType().getRecordType();
         //has to be record type
-        if (record.getType() instanceof Type.RecordType recordType) {
+        if (recordType != null) {
             // look at the field
             Type.Field field = recordType.getField(node.getFieldName());
 
@@ -504,7 +551,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 // make var entry for field
                 // TODO: cant add offset here
                 node.setFieldInfo(field.getOffset(), field.getType());
-                node.setType(field.getType());
+                node.setType(new Type.ReferenceType(field.getType()));
             } else {
                 staticError("no field '" + node.getFieldName() + "' in record",
                         node.getLocation());
@@ -526,7 +573,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     public ExpNode visitNewNode (ExpNode.NewNode node ) {
         beginCheck("new");
 
-        if (node.getRecordType() instanceof  Type.RecordType recordType) {
+        Type recType = node.getRecordType().resolveType();
+        Type.RecordType recordType = recType.getRecordType();
+
+        if (recordType != null) {
 
             List<Type.Field> fields = recordType.getFieldList();
             List<ExpNode> values = node.getFieldValues();

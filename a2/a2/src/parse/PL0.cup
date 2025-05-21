@@ -346,7 +346,11 @@ TypeDef ::= IDENTIFIER:id EQUALS Type:type SEMICOLON
     |  error
     ;
 
-Type ::= TypeIdentifier:type
+Type ::=  KW_RECORD:rec Fields:f KW_END
+          {:
+              RESULT = new Type.RecordType(recxleft, f);
+          :}
+    | TypeIdentifier:type
         {:
             RESULT = type;
         :}
@@ -354,12 +358,6 @@ Type ::= TypeIdentifier:type
         {:
             RESULT = new Type.SubrangeType(subrxleft, lo, hi);
         :}
-
-    | KW_RECORD:rec Fields:f KW_END
-        {:
-            RESULT = new Type.RecordType(recxleft, f);
-        :}
-
     | error:err
         {:
             RESULT = Type.ERROR_TYPE;
@@ -644,7 +642,6 @@ Factor ::= PLUS Factor:e
         {:
             RESULT = new ExpNode.NewNode(typexleft, type, el);
         :}
-
     |  LValue:lval
         {:
             RESULT = lval;
@@ -661,19 +658,15 @@ ExpList ::=
     {:
         RESULT = new ArrayList<ExpNode>();
     :}
-
+    |  ExpList:exps COMMA Condition:next
+        {:
+            exps.add(next);
+            RESULT = exps;
+        :}
     |  Condition:first
         {:
             List<ExpNode> exps = new ArrayList<>();
             exps.add(first);
             RESULT = exps;
         :}
-
-    |  ExpList:exps COMMA Condition:next
-        {:
-            exps.add(next);
-            RESULT = exps;
-        :}
-
-
     ;
