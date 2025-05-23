@@ -1,0 +1,15 @@
+// Incorrect program: erroneous record: has no fields
+type
+    RT1 = record
+            // syntax error - must have at least 1 field
+          end;
+    RT2 = record
+            x: int
+          end;
+var
+    r1: RT1;
+    r2: RT2;
+begin
+  r1 := new RT1(); // syntax error - a new record expression can't have an empty list of field values
+  r2 := new RT2()  // syntax error - a new record expression can't have an empty list of field values
+end

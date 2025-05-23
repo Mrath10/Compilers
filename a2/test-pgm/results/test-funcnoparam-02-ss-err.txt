@@ -1,0 +1,12 @@
+Compiling test-funcnoparam-02-ss-err.pl0
+Parsing complete
+     7      return false //ss error: false not assignment compatible with int
+******             ^  Error: cannot coerce boolean to int
+    11      return x-1  //ss error: x-1 not assignment compatible with boolean
+******              ^  Error: cannot coerce int to boolean
+    16      return y // ss error: return statement not valid in a non-function procedure
+******             ^  Error: can only return from a function
+    21   write func2(); //ss error: return type of function not compatible with int
+******         ^  Error: cannot coerce boolean to int
+Static semantic analysis complete
+4 errors detected.

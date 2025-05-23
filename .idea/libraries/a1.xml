@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="a1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/a1/a1/java-cup-11b.jar!/" />
+      <root url="jar://$PROJECT_DIR$/a1/a1/pl0-syntax.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

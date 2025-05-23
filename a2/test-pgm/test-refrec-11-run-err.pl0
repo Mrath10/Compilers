@@ -1,0 +1,24 @@
+// Incorrect program: attempt to reference an element of a record when it is nil (runtime error)
+type
+    S = [1..31];
+    R1 = record
+           x: S;
+           y: boolean;
+           z: R2
+         end;
+    R2 = record
+           w: int
+         end;
+var
+    r1: R1;
+    r2: R2;
+    s: S;
+    b: boolean;
+begin
+  s := 20;
+  b := true;
+  r2 := new R2(5);
+  r1 := new R1(s, b, r2);
+  r1.z := nil;
+  write r1.z.w // runtime error as r1.z is nil
+end
