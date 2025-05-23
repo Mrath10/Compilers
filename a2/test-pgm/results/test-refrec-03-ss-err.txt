@@ -1,8 +1,0 @@
-Compiling test-refrec-03-ss-err.pl0
-     7            x: int // x repeated field name (static semantics error but reported during parsing)
-******            ^  Error: duplicate field
-Parsing complete
-    11            n: S // ss error: undefined type
-******               ^  Error: undefined type: S
-Static semantic analysis complete
-2 errors detected.
