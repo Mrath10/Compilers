@@ -191,6 +191,11 @@ non terminal Operator         Relation,
                               UnaryOperator;
 non terminal ExpNode          LValue;
 
+/*terminals for assignment*/
+non terminal List<Type.Field> Fields;
+non terminal Type.Field Field;
+non terminal List<ExpNode> ExpList;
+
 
 /**-------------------------------------------------------------
  *------------------------ GRAMMAR RULES
@@ -353,9 +358,47 @@ Type ::= TypeIdentifier:type
         {:
             RESULT = new Type.SubrangeType(subrxleft, lo, hi);
         :}
+    /* Record production */
+    | KW_RECORD Fields:fields KW_END
+        {:
+            RESULT = new Type.RecordType(fieldsxleft, fields);
+        :}
     | error:err
         {:
             RESULT = Type.ERROR_TYPE;
+        :}
+    ;
+
+/*Fields Production*/
+Fields ::= Field:field
+        {:
+            RESULT = new ArrayList<Type.Field>();
+            RESULT.add(field);
+        :}
+    | Fields:fields SEMICOLON Field:field
+        {:
+            fields.add(field);
+            RESULT = fields;
+        :}
+    ;
+
+/* Field Production*/
+Field ::= IDENTIFIER:id COLON TypeIdentifier:type
+        {:
+            RESULT = new Type.Field(idxleft, id, type);
+        :}
+    ;
+
+/* Exp List production*/
+ExpList ::= Condition:exp
+        {:
+            RESULT = new ArrayList<ExpNode>();
+            RESULT.add(exp);
+        :}
+    | ExpList:list COMMA Condition:exp
+        {:
+            list.add(exp);
+            RESULT = list;
         :}
     ;
 
@@ -496,6 +539,11 @@ LValue ::= IDENTIFIER:id
              */
             RESULT = new ExpNode.IdentifierNode(idxleft, id);
         :}
+     /* Field access */
+     | LValue:lval PERIOD:period IDENTIFIER:id
+         {:
+             RESULT = new ExpNode.FieldAccessNode(periodxleft, lval, id);
+         :}
     | error:e
         {:
             RESULT = new ExpNode.ErrorNode(exleft);
@@ -605,6 +653,11 @@ Factor ::= PLUS Factor:e
         {:
             RESULT = new ExpNode.ConstNode(nxleft, 
                     Predefined.INTEGER_TYPE, n);
+        :}
+    |  KW_NEW:newKW TypeIdentifier:type LPAREN ExpList:expList RPAREN
+        {:
+            RESULT = new ExpNode.NewRecordNode(newKWxleft,
+                    type, expList);
         :}
     |  LValue:lval
         {:

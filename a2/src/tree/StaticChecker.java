@@ -509,7 +509,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
             } else if (expressions.size() < fields.size()) {
 
-                staticError("fewer expression than fields in the record",
+                staticError("fewer expressions than fields in the record",
                         node.getLocation());
                 node.setType(Type.ERROR_TYPE);
 
@@ -530,7 +530,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 node.setType(resolvedRT);
             }
         } else if (recordType != Type.ERROR_TYPE) {
-            staticError("type must be a record type, not" + recordType.toString(),
+            staticError("type must be a record type, not " + recordType.toString(),
                     node.getLocation());
             node.setType(Type.ERROR_TYPE);
         } else {
