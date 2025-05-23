@@ -480,6 +480,99 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         endCheck("WidenSubrange");
         return node;
     }
+    /**
+     * Handles Records
+     * */
+    public ExpNode visitNewRecordNode(ExpNode.NewRecordNode node) {
+        beginCheck("NewRecord");
+
+        //resolve recordtype
+        Type recordType = node.getRecordType().resolveType();
+        node.setRecordType(recordType);
+
+        if (recordType instanceof Type.RecordType resolvedRT) {
+
+            List<Type.Field> fields = resolvedRT.getFieldList();
+            List<ExpNode> expressions = node.getExpressions();
+
+            //check expressions and field count
+            if(expressions.size() > fields.size()) {
+
+                staticError("more expressions than fields in the record",
+                        expressions.get(fields.size()).getLocation());
+                node.setType(Type.ERROR_TYPE);
+
+            } else if (expressions.size() < fields.size()) {
+
+                staticError("fewer expression than fields in the record",
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+
+            } else {
+
+                //check each expression and coerece
+                List<ExpNode> coercedExps = new ArrayList<>();
+                for (int i=0; i < expressions.size(); i++) {
+
+                    ExpNode exp = expressions.get(i).transform(this);
+                    Type.Field field = fields.get(i);
+                    Type fieldType = field.getType().resolveType();
+                    ExpNode coercedExp = fieldType.coerceExp(exp);
+                    coercedExps.add(coercedExp);
+
+                }
+                node.setExpressions(coercedExps);
+                node.setType(resolvedRT);
+            }
+        } else if (recordType != Type.ERROR_TYPE) {
+            staticError("type must be a record type, not" + recordType.toString(),
+                    node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        } else {
+            node.setType(Type.ERROR_TYPE);
+        }
+        endCheck("NewRecord");
+        return node;
+    }
+
+    /**
+     * Handles accessing fields of records
+     * */
+    public ExpNode visitFieldAccessNode(ExpNode.FieldAccessNode node) {
+        beginCheck("FieldAccess");
+
+        //transform the record expression and dereference
+        ExpNode record = node.getRecord().transform(this);
+        node.setRecord(record);
+        Type recordType = record.getType().optDereferenceType();
+
+
+        if (recordType instanceof Type.RecordType recordT) {
+            String fieldName = node.getFieldName();
+
+            //set field access type as reference to field type
+            if (recordT.containsField(fieldName)) {
+
+                Type.Field field = recordT.getField(fieldName);
+                Type fieldType = field.getType();
+                node.setType(new Type.ReferenceType(fieldType));
+
+            } else {
+                staticError("record does not contain field " + fieldName,
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+            }
+        } else if (recordType != Type.ERROR_TYPE) {
+            staticError("left value must be a record type, found " + record.getType(),
+                    node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        } else {
+            node.setType(Type.ERROR_TYPE);
+        }
+
+        endCheck("FieldAccess");
+        return node;
+    }
 
     //**************************** Support Methods
 
