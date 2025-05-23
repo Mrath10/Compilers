@@ -2,6 +2,7 @@ package tree;
 
 import java.util.*;
 
+import source.ErrorHandler;
 import source.VisitorDebugger;
 import source.Errors;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -75,6 +76,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         localScope.resolveScope();
         // Enter the local scope of the procedure
         currentScope = localScope;
+
+        //add operators for records if we find them
+        addRecordOps(currentScope);
+
         // Check the block of the procedure.
         visitBlockNode(node.getBlock());
         // Restore the symbol table to the parent scope
@@ -575,6 +580,49 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     }
 
     //**************************** Support Methods
+
+    /**
+     *  comparison operators for record types in scope hiearchy
+     */
+    private void addRecordOps(Scope scope) {
+
+        List<Type.RecordType> recordTypes = new ArrayList<>();
+
+        //look for record types in current scope
+        for (SymEntry entry: scope.getEntries()) {
+            if(entry instanceof SymEntry.TypeEntry typeEntry) {
+                Type type = typeEntry.getType();
+                if (type instanceof Type.RecordType recordType) {
+                    recordTypes.add(recordType);
+                }
+            }
+        }
+
+        for (Type.RecordType record: recordTypes) {
+            addRecTypeOp(scope, record);
+        }
+    }
+
+    /**
+     * add equality and inequality operators for a record type
+     * */
+    private void addRecTypeOp(Scope scope, Type.RecordType recordType) {
+        //for equality
+        Type.FunctionType eqFunc = new Type.FunctionType(
+                new Type.ProductType(recordType, recordType),
+                Predefined.BOOLEAN_TYPE
+        );
+
+        //for inequality
+        Type.FunctionType neqFunc = new Type.FunctionType(
+                new Type.ProductType(recordType,recordType),
+                Predefined.BOOLEAN_TYPE
+        );
+
+        scope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, eqFunc);
+        scope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, neqFunc);
+
+    }
 
     /**
      * Push current node onto debug rule stack and increase debug level
