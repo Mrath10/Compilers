@@ -579,6 +579,60 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
+    /**
+     * Handles return statements
+     * */
+    public void visitReturnNode(StatementNode.ReturnNode node) {
+        beginCheck("Return");
+
+        //check return expression
+        ExpNode returnExp = node.getReturnExp().transform(this);
+        node.setReturnExp(returnExp);
+
+        //get current procedures entry
+        SymEntry.ProcedureEntry currProcedure = currentScope.getOwnerEntry();
+        if (currProcedure != null) {
+            Type resultType = currProcedure.getType().getResultType();
+            if (resultType == Type.VOID_TYPE) {
+                staticError("invalid return statement in procedure", node.getLocation());
+            } else {
+                //coerce return to function result type
+                node.setReturnExp(resultType.coerceExp(returnExp));
+            }
+        }
+        endCheck("Return");
+    }
+
+    /**
+     * Handles function calls
+     * */
+    public ExpNode visitFunctionCallNode(ExpNode.FunctionCallNode node) {
+
+        beginCheck("FunctionCall");
+
+        //get entry of function from symbol table
+        SymEntry entry = currentScope.lookup(node.getId());
+
+        if (entry instanceof SymEntry.ProcedureEntry procedureEntry) {
+
+            Type.ProcedureType procedureT = procedureEntry.getType();
+            if (procedureT.getResultType() == Type.VOID_TYPE) {
+                staticError("Procedure" + node.getId() + "cannot be used in expression",
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+            } else {
+                node.setProcedureEntry(procedureEntry);
+                node.setType(procedureT.getResultType());
+            }
+        } else {
+
+            staticError("Function identifier required", node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        }
+        endCheck("FunctionCall");
+        return node;
+    }
+
     //**************************** Support Methods
 
     /**
@@ -598,7 +652,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             }
         }
 
+        // add equality and inequality operators
         for (Type.RecordType record: recordTypes) {
+
+            // TODO: remove the extra function, not needed.
             addRecTypeOp(scope, record);
         }
     }
