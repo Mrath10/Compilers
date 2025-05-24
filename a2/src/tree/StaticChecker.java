@@ -2,6 +2,7 @@ package tree;
 
 import java.util.*;
 
+import source.ErrorHandler;
 import source.VisitorDebugger;
 import source.Errors;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -75,6 +76,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         localScope.resolveScope();
         // Enter the local scope of the procedure
         currentScope = localScope;
+
+        //add operators for records if we find them
+        addRecordOps(currentScope);
+
         // Check the block of the procedure.
         visitBlockNode(node.getBlock());
         // Restore the symbol table to the parent scope
@@ -480,8 +485,144 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         endCheck("WidenSubrange");
         return node;
     }
+    /**
+     * Handles Records
+     * */
+    public ExpNode visitNewRecordNode(ExpNode.NewRecordNode node) {
+        beginCheck("NewRecord");
+
+        //resolve recordtype
+        Type recordType = node.getRecordType().resolveType();
+        node.setRecordType(recordType);
+
+        if (recordType instanceof Type.RecordType resolvedRT) {
+
+            List<Type.Field> fields = resolvedRT.getFieldList();
+            List<ExpNode> expressions = node.getExpressions();
+
+            //check expressions and field count
+            if(expressions.size() > fields.size()) {
+
+                staticError("more expressions than fields in the record",
+                        expressions.get(fields.size()).getLocation());
+                node.setType(Type.ERROR_TYPE);
+
+            } else if (expressions.size() < fields.size()) {
+
+                staticError("fewer expressions than fields in the record",
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+
+            } else {
+
+                //check each expression and coerece
+                List<ExpNode> coercedExps = new ArrayList<>();
+                for (int i=0; i < expressions.size(); i++) {
+
+                    ExpNode exp = expressions.get(i).transform(this);
+                    Type.Field field = fields.get(i);
+                    Type fieldType = field.getType().resolveType();
+                    ExpNode coercedExp = fieldType.coerceExp(exp);
+                    coercedExps.add(coercedExp);
+
+                }
+                node.setExpressions(coercedExps);
+                node.setType(resolvedRT);
+            }
+        } else if (recordType != Type.ERROR_TYPE) {
+            staticError("type must be a record type, not " + recordType.toString(),
+                    node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        } else {
+            node.setType(Type.ERROR_TYPE);
+        }
+        endCheck("NewRecord");
+        return node;
+    }
+
+    /**
+     * Handles accessing fields of records
+     * */
+    public ExpNode visitFieldAccessNode(ExpNode.FieldAccessNode node) {
+        beginCheck("FieldAccess");
+
+        //transform the record expression and dereference
+        ExpNode record = node.getRecord().transform(this);
+        node.setRecord(record);
+        Type recordType = record.getType().optDereferenceType();
+
+
+        if (recordType instanceof Type.RecordType recordT) {
+            String fieldName = node.getFieldName();
+
+            //set field access type as reference to field type
+            if (recordT.containsField(fieldName)) {
+
+                Type.Field field = recordT.getField(fieldName);
+                Type fieldType = field.getType();
+                node.setType(new Type.ReferenceType(fieldType));
+
+            } else {
+                staticError("record does not contain field " + fieldName,
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+            }
+        } else if (recordType != Type.ERROR_TYPE) {
+            staticError("left value must be a record type, found " + record.getType(),
+                    node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        } else {
+            node.setType(Type.ERROR_TYPE);
+        }
+
+        endCheck("FieldAccess");
+        return node;
+    }
 
     //**************************** Support Methods
+
+    /**
+     *  comparison operators for record types in scope hiearchy
+     */
+    private void addRecordOps(Scope scope) {
+
+        List<Type.RecordType> recordTypes = new ArrayList<>();
+
+        //look for record types in current scope
+        for (SymEntry entry: scope.getEntries()) {
+            if(entry instanceof SymEntry.TypeEntry typeEntry) {
+                Type type = typeEntry.getType();
+                if (type instanceof Type.RecordType recordType) {
+                    recordTypes.add(recordType);
+                }
+            }
+        }
+
+        for (Type.RecordType record: recordTypes) {
+            addRecTypeOp(scope, record);
+        }
+    }
+
+    /**
+     * add equality and inequality operators for a record type
+     * */
+    private void addRecTypeOp(Scope scope, Type.RecordType recordType) {
+        //for equality
+        Type.FunctionType eqFunc = new Type.FunctionType(
+                new Type.ProductType(recordType, recordType),
+                Predefined.BOOLEAN_TYPE
+        );
+
+        //for inequality
+        Type.FunctionType neqFunc = new Type.FunctionType(
+                new Type.ProductType(recordType,recordType),
+                Predefined.BOOLEAN_TYPE
+        );
+
+        scope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, eqFunc);
+        scope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, neqFunc);
+
+    }
 
     /**
      * Push current node onto debug rule stack and increase debug level

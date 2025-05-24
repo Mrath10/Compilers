@@ -413,6 +413,92 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         endGen("WidenSubrange");
         return code;
     }
+
+    public Code visitNewRecordNode(ExpNode.NewRecordNode node) {
+        beginGen("NewRecord");
+        Code code = new Code();
+        Type.RecordType recordType = (Type.RecordType) node.getType();
+
+        if (recordType != Type.ERROR_TYPE) {
+
+            //alloc heap
+            code.genLoadConstant(recordType.getFieldSpace());
+            code.generateOp(Operation.ALLOC_HEAP);
+
+            List<ExpNode> expressions = node.getExpressions();
+            List<Type.Field> fields = recordType.getFieldList();
+
+
+            //store field values
+            for (int i=0; i < expressions.size(); i++) {
+                Type.Field field = fields.get(i);
+                ExpNode expr = expressions.get(i);
+
+                //duplicate for field calculation
+                code.generateOp(Operation.DUP);
+                //get absolute field address
+                if (field.getOffset() != 0) {
+                    code.genLoadConstant(field.getOffset());
+                    code.generateOp(Operation.ADD);
+                }
+
+                //absolute adress to frame-relative
+                code.generateOp(Operation.TO_LOCAL);
+                code.append(expr.genCode(this));
+                //swap to get record at top of stack for store
+                code.generateOp(Operation.SWAP);
+                code.generateOp(Operation.STORE_FRAME);
+            }
+        }
+        endGen("NewRecord");
+        return code;
+    }
+
+    @Override
+    public Code visitFieldAccessNode(ExpNode.FieldAccessNode node) {
+        beginGen("FieldAccess");
+        Code code = new Code();
+
+        // get record addrss
+        code.append(node.getRecord().genCode(this));
+
+        Type resolvedRefType = node.getRecord().getType().getRecordType();
+        code.genLoad(resolvedRefType);
+        Type.RecordType recordType = node.getRecord().getType().getRecordType();
+
+        String fieldName = node.getFieldName();
+        Type.Field field = recordType.getField(fieldName);
+
+        // nil check
+        Code checkCode = new Code();
+        checkCode.generateOp(Operation.DUP);
+        checkCode.genLoadConstant(StackMachine.NULL_ADDR);
+        checkCode.generateOp(Operation.EQUAL);
+
+        // error for nil access
+        Code errorCode = new Code();
+        errorCode.generateOp(Operation.POP); // remove duplicate addr
+        errorCode.genLoadConstant(StackMachine.NIL_RECORD);
+        errorCode.generateOp(Operation.STOP);
+
+       //calculate field address if pass
+        Code passCode = new Code();
+        if (field.getOffset() != 0) {
+            passCode.genLoadConstant(field.getOffset());
+            passCode.generateOp(Operation.ADD);
+        }
+
+        // absolute field address to frame-relative
+        passCode.generateOp(Operation.TO_LOCAL);
+
+        // generate if-then-else for handling of cases
+        code.genIfThenElse(checkCode, errorCode, passCode);
+
+
+        endGen("FieldAccess");
+        return code;
+    }
+
     //**************************** Support Methods
 
     /**

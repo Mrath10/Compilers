@@ -443,5 +443,95 @@ public abstract class ExpNode {
         }
     }
 
+    public static class NewRecordNode extends ExpNode {
+
+        private Type recordType;
+        private List<ExpNode> expressions;
+
+        public NewRecordNode(Location loc, Type recordType, List<ExpNode>  expressions) {
+            super(loc);
+            this.recordType = recordType;
+            this.expressions = expressions;
+        }
+
+        public Type getRecordType() {
+            return recordType;
+        }
+
+        public void setRecordType(Type recordType) {
+            this.recordType = recordType;
+        }
+
+        public List<ExpNode> getExpressions() {
+            return expressions;
+        }
+
+        public void setExpressions(List<ExpNode> expressions) {
+            this.expressions = expressions;
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitNewRecordNode(this);
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitNewRecordNode(this);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("new").append(recordType.getName()).append("(");
+
+            for (int i=0; i < expressions.size(); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(expressions.get(i));
+            }
+            sb.append(")");
+            return sb.toString();
+        }
+    }
+
+    public static class FieldAccessNode extends ExpNode {
+
+        private ExpNode record;
+        private final String fieldName;
+
+        public FieldAccessNode(Location loc, ExpNode record, String fieldName) {
+            super(loc);
+            this.record=record;
+            this.fieldName=fieldName;
+        }
+
+        public ExpNode getRecord(){
+            return  record;
+        }
+
+        public void setRecord(ExpNode record) {
+            this.record = record;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitFieldAccessNode(this);
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitFieldAccessNode(this);
+        }
+
+        @Override
+        public String toString() {
+            return record + "." + fieldName;
+        }
+
+    }
 
 }
