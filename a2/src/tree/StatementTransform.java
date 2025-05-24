@@ -29,4 +29,6 @@ public interface StatementTransform<ResultType> {
 
     ResultType visitWhileNode(StatementNode.WhileNode node);
 
+    ResultType visitReturnNode(StatementNode.ReturnNode node);
+
 }

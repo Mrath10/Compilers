@@ -463,5 +463,41 @@ public abstract class StatementNode {
                     newLine(level + 1) + loopStmt.toString(level + 1);
         }
     }
+
+    /**
+     * node representing return statement
+     */
+    public static class ReturnNode extends StatementNode {
+        private ExpNode returnExp;
+
+        public ReturnNode(Location loc, ExpNode returnExp) {
+            super(loc);
+            this.returnExp = returnExp;
+
+        }
+
+        @Override
+        public void accept(StatementVisitor visitor) {
+            visitor.visitReturnNode(this);
+        }
+
+        @Override
+        public Code genCode(StatementTransform<Code> visitor) {
+            return visitor.visitReturnNode(this);
+        }
+
+        public ExpNode getReturnExp() {
+            return returnExp;
+        }
+
+        public void setReturnExp(ExpNode returnExp) {
+            this.returnExp = returnExp;
+        }
+
+        @Override
+        public String toString(int level) {
+            return "RETURN " + returnExp;
+        }
+    }
 }
 

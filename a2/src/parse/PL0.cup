@@ -543,9 +543,9 @@ Statement ::= KW_WHILE Condition:c KW_DO Statement:s
             RESULT = new StatementNode.CallNode(idxleft, id);
         :}
     /* for return statement */
-    |  KW_RETURN Condition:e
+    |  KW_RETURN:r Condition:e
         {:
-            RESULT = new StatementNode.ReturnNode(rxleft, id);
+            RESULT = new StatementNode.ReturnNode(rxleft, e);
         :}
     |  error:loc
         {: 
