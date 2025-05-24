@@ -534,4 +534,36 @@ public abstract class ExpNode {
 
     }
 
+    public static class FunctionCallNode extends ExpNode {
+
+        private final String id;
+        private SymEntry.ProcedureEntry procedureEntry;
+
+        public FunctionCallNode(Location loc, String id) {
+            super(loc);
+            this.id  = id;
+        }
+
+        public String getId() { return id; }
+
+        public SymEntry.ProcedureEntry getProcedureEntry() { return procedureEntry; }
+
+        public void setProcedureEntry(SymEntry.ProcedureEntry entry) { this.procedureEntry = entry;}
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitFunctionCallNode(this);
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitFunctionCallNode(this);
+        }
+
+        @Override
+        public String toString() { return id + "()"; }
+
+
+    }
+
 }

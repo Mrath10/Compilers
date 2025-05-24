@@ -26,4 +26,6 @@ public interface ExpTransform<ResultType> {
 
     ResultType visitFieldAccessNode(ExpNode.FieldAccessNode node);
 
+    ResultType visitFunctionCallNode(ExpNode.FunctionCallNode node );
+
 }
