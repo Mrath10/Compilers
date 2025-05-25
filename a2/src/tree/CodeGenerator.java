@@ -544,7 +544,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         code.generateOp(Operation.ALLOC_STACK);
         code.genCall(staticLevel - procedure.getLevel(), procedure);
 
-        endGen("Function call");
+        endGen("FunctionCall");
         return code;
     }
     //**************************** Support Methods

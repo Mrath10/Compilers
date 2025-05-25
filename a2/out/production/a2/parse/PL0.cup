@@ -455,6 +455,29 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
             currentScope = currentScope.newScope(procEntry);
             RESULT = procEntry;
         :}
+    /* for productions*/
+    | KW_PROCEDURE IDENTIFIER:id
+                  LPAREN FormalParamList:pl
+                  RPAREN COLON TypeIdentifier:type
+              {:
+                  /* Add an entry for the procedure to the current scope */
+                  SymEntry.ProcedureEntry procEntry = currentScope.addProcedure(id, idxleft);
+                  if(procEntry == null) {
+                      errors.error(id + " already declared in this scope", idxleft);
+                      /* Create a dummy symbol table entry.
+                       * Note that this entry isn't added to the symbol table
+                       * but the RESULT attribute of ProcedureHead must return a
+                       * ProcedureEntry. */
+                      procEntry = new SymEntry.ProcedureEntry(id, idxleft);
+                      procEntry.setScope(currentScope);
+                  }
+                  /* Set result type for the function */
+                  procEntry.getType().setResultType(type);
+                  /* Create a new scope for the symbols local to
+                   * the procedure. */
+                  currentScope = currentScope.newScope(procEntry);
+                  RESULT = procEntry;
+              :}
     |  KW_PROCEDURE IDENTIFIER:id error
         {:
             /* On a syntax error in a procedure head a dummy ProcedureEntry is
@@ -468,7 +491,6 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
             RESULT = procEntry;
         :}
     ;
-
 
 /* To allow for the addition of procedure parameters. */
 FormalParamList ::= /* empty */
@@ -519,6 +541,11 @@ Statement ::= KW_WHILE Condition:c KW_DO Statement:s
     |  KW_CALL IDENTIFIER:id LPAREN ActualParamList:pl RPAREN
         {: 
             RESULT = new StatementNode.CallNode(idxleft, id);
+        :}
+    /* for return statement */
+    |  KW_RETURN:r Condition:e
+        {:
+            RESULT = new StatementNode.ReturnNode(exleft, e);
         :}
     |  error:loc
         {: 
@@ -658,6 +685,11 @@ Factor ::= PLUS Factor:e
         {:
             RESULT = new ExpNode.NewRecordNode(newKWxleft,
                     type, expList);
+        :}
+    /* For function calls */
+    |  IDENTIFIER:id LPAREN RPAREN
+        {:
+            RESULT = new ExpNode.FunctionCallNode(idxleft,id);
         :}
     |  LValue:lval
         {:
