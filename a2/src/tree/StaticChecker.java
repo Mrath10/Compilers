@@ -523,7 +523,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
             } else {
 
-                //check each expression and coerece
+                // type check and coerece each expression
                 List<ExpNode> coercedExps = new ArrayList<>();
                 for (int i=0; i < expressions.size(); i++) {
 
@@ -597,7 +597,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         ExpNode returnExp = node.getReturnExp().transform(this);
         node.setReturnExp(returnExp);
 
-        //get current procedures entry
+        //get current procedures entry and check if its void, if not coerce
         SymEntry.ProcedureEntry currProcedure = currentScope.getOwnerEntry();
         if (currProcedure != null) {
             Type resultType = currProcedure.getType().getResultType();

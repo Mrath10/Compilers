@@ -482,15 +482,18 @@ public abstract class ExpNode {
 
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("new").append(recordType.getName()).append("(");
+            StringBuilder sb = new StringBuilder("new ");
+            sb.append(recordType.getName()).append("(");
 
-            for (int i=0; i < expressions.size(); i++) {
-                if (i > 0) sb.append(", ");
-                sb.append(expressions.get(i));
+            String sepr = "";
+
+            for (ExpNode exp: expressions) {
+                sb.append(sepr).append(exp);
+                sepr = ", ";
             }
             sb.append(")");
             return sb.toString();
+
         }
     }
 

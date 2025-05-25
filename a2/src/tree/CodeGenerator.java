@@ -426,6 +426,10 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
+
+    /**
+     * Generate code to create a record
+     */
     public Code visitNewRecordNode(ExpNode.NewRecordNode node) {
         beginGen("NewRecord");
         Code code = new Code();
@@ -466,6 +470,9 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
+    /**
+     * Generate code for field access of a record
+     */
     @Override
     public Code visitFieldAccessNode(ExpNode.FieldAccessNode node) {
         beginGen("FieldAccess");
@@ -474,8 +481,8 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         // get record addrss
         code.append(node.getRecord().genCode(this));
 
-        Type resolvedRefType = node.getRecord().getType().getRecordType();
-        code.genLoad(resolvedRefType);
+        Type resolvedRT = node.getRecord().getType().getRecordType();
+        code.genLoad(resolvedRT);
         Type.RecordType recordType = node.getRecord().getType().getRecordType();
 
         String fieldName = node.getFieldName();
