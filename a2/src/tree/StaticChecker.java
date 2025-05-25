@@ -184,6 +184,15 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         // Look up the symbol table entry for the procedure.
         SymEntry entry = currentScope.lookup(node.getId());
         if (entry instanceof SymEntry.ProcedureEntry procEntry) {
+
+            // TODO: add a check here?
+            Type procedureT = procEntry.getType().getResultType();
+            if (procedureT != Type.VOID_TYPE) {
+
+                staticError("Function " + node.getId() + " not called in expresion",
+                        node.getLocation());
+
+            }
             node.setEntry(procEntry);
         } else {
             staticError("Procedure identifier required", node.getLocation());

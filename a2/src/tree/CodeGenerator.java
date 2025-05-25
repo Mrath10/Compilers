@@ -499,6 +499,42 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
+    /**
+     * Code for a return statement
+     */
+    @Override
+    public Code visitReturnNode(ReturnNode node) {
+        beginGen("Return");
+        Code code = new Code();
+
+        //evaluate return expression and store at fp -1
+        code.append(node.getReturnExp().genCode(this));
+        code.genLoadConstant(-1);
+        code.generateOp(Operation.STORE_FRAME);
+        code.generateOp(Operation.RETURN);
+
+        endGen("Return");
+        return code;
+    }
+
+    /**
+     * Code for function call
+     */
+    @Override
+    public Code visitFunctionCallNode(ExpNode.FunctionCallNode node) {
+        beginGen("FunctionCall");
+
+        SymEntry.ProcedureEntry procedure = node.getProcedureEntry();
+        Code code = new Code();
+
+        //alloc space for function result (fp-1) and generate call instruction
+        code.generateOp(Operation.ONE);
+        code.generateOp(Operation.ALLOC_STACK);
+        code.genCall(staticLevel - procedure.getLevel(), procedure);
+
+        endGen("Function call");
+        return code;
+    }
     //**************************** Support Methods
 
     /**
