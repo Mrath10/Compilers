@@ -183,17 +183,16 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         beginCheck("Call");
         // Look up the symbol table entry for the procedure.
         SymEntry entry = currentScope.lookup(node.getId());
-        if (entry instanceof SymEntry.ProcedureEntry procEntry) {
+        if (entry instanceof SymEntry.ProcedureEntry proEntry) {
 
-            // TODO: add a check here?
-            Type procedureT = procEntry.getType().getResultType();
-            if (procedureT != Type.VOID_TYPE) {
+            Type proType = proEntry.getType().getResultType();
+            if (proType != Type.VOID_TYPE) {
 
                 staticError("cannot call a function from a call statement",
                         node.getLocation());
 
             }
-            node.setEntry(procEntry);
+            node.setEntry(proEntry);
         } else {
             staticError("Procedure identifier required", node.getLocation());
         }
@@ -622,17 +621,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         //get entry of function from symbol table
         SymEntry entry = currentScope.lookup(node.getId());
 
-        if (entry instanceof SymEntry.ProcedureEntry procedureEntry) {
+        if (entry instanceof SymEntry.ProcedureEntry procedureEntry &&
+            procedureEntry.getType().getResultType() != Type.VOID_TYPE) {
 
-            Type.ProcedureType procedureT = procedureEntry.getType();
-            if (procedureT.getResultType() == Type.VOID_TYPE) {
-                staticError(node.getId() + " should be a function",
-                        node.getLocation());
-                node.setType(Type.ERROR_TYPE);
-            } else {
                 node.setProcedureEntry(procedureEntry);
-                node.setType(procedureT.getResultType());
-            }
+                node.setType(procedureEntry.getType().getResultType());
+
         } else {
 
             staticError(node.getId() + " should be a function", node.getLocation());
@@ -651,43 +645,32 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         List<Type.RecordType> recordTypes = new ArrayList<>();
 
-        //look for record types in current scope
+        //look for record types in current scope and gather them
         for (SymEntry entry: scope.getEntries()) {
-            if(entry instanceof SymEntry.TypeEntry typeEntry) {
-                Type type = typeEntry.getType();
-                if (type instanceof Type.RecordType recordType) {
+            if(entry instanceof SymEntry.TypeEntry typeEntry &&
+                    typeEntry.getType() instanceof Type.RecordType recordType) {
                     recordTypes.add(recordType);
-                }
             }
         }
 
         // add equality and inequality operators
         for (Type.RecordType record: recordTypes) {
 
-            // TODO: remove the extra function, not needed.
-            addRecTypeOp(scope, record);
+
+            Type.FunctionType eqFunc = new Type.FunctionType(
+                    new Type.ProductType(record, record),
+                    Predefined.BOOLEAN_TYPE
+            );
+
+            Type.FunctionType neqFunc = new Type.FunctionType(
+                    new Type.ProductType(record,record),
+                    Predefined.BOOLEAN_TYPE
+            );
+
+            scope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, eqFunc);
+            scope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, neqFunc);
+
         }
-    }
-
-    /**
-     * add equality and inequality operators for a record type
-     * */
-    private void addRecTypeOp(Scope scope, Type.RecordType recordType) {
-        //for equality
-        Type.FunctionType eqFunc = new Type.FunctionType(
-                new Type.ProductType(recordType, recordType),
-                Predefined.BOOLEAN_TYPE
-        );
-
-        //for inequality
-        Type.FunctionType neqFunc = new Type.FunctionType(
-                new Type.ProductType(recordType,recordType),
-                Predefined.BOOLEAN_TYPE
-        );
-
-        scope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, eqFunc);
-        scope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, neqFunc);
-
     }
 
     /**
