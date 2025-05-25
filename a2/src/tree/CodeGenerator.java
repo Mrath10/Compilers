@@ -66,7 +66,19 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         beginGen("Procedure");
         // Generate code for the block
         Code code = visitBlockNode(node.getBlock());
+
+        //check for function
+        SymEntry.ProcedureEntry procEntry = node.getProcEntry();
+        Type resultType = procEntry.getType().getResultType();
+
+        if (resultType != Type.VOID_TYPE) {
+            //runtime for function withtout return
+            code.genLoadConstant(StackMachine.NO_RETURN);
+            code.generateOp(Operation.STOP);
+        } else {
             code.generateOp(Operation.RETURN);
+        }
+
         procedures.addProcedure(node.getProcEntry(), code);
         //System.out.println(node.getProcEntry().getIdent() + "\n" + code);
         endGen("Procedure");

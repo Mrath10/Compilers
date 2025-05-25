@@ -189,7 +189,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             Type procedureT = procEntry.getType().getResultType();
             if (procedureT != Type.VOID_TYPE) {
 
-                staticError("Function " + node.getId() + " not called in expresion",
+                staticError("cannot call a function from a call statement",
                         node.getLocation());
 
             }
@@ -603,7 +603,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         if (currProcedure != null) {
             Type resultType = currProcedure.getType().getResultType();
             if (resultType == Type.VOID_TYPE) {
-                staticError("invalid return statement in procedure", node.getLocation());
+                staticError("can only return from a function", node.getLocation());
             } else {
                 //coerce return to function result type
                 node.setReturnExp(resultType.coerceExp(returnExp));
@@ -626,7 +626,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
             Type.ProcedureType procedureT = procedureEntry.getType();
             if (procedureT.getResultType() == Type.VOID_TYPE) {
-                staticError("Procedure" + node.getId() + "cannot be used in expression",
+                staticError(node.getId() + " should be a function",
                         node.getLocation());
                 node.setType(Type.ERROR_TYPE);
             } else {
@@ -635,7 +635,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             }
         } else {
 
-            staticError("Function identifier required", node.getLocation());
+            staticError(node.getId() + " should be a function", node.getLocation());
             node.setType(Type.ERROR_TYPE);
         }
         endCheck("FunctionCall");
